@@ -1,6 +1,6 @@
-# StarkInsure Web
+# Starknet-Indemnify-Web
 
-The **StarkInsure Web** is the Next.js frontend for the StarkInsure DeFi insurance platform, providing users with a seamless interface to manage policies, file claims, and interact with StarkNet-powered insurance pools.
+The **Starknet-Indemnify-Web** is the Next.js frontend for the Starknet-Indemnify DeFi insurance platform, providing users with a seamless interface to manage policies, file claims, and interact with StarkNet-powered insurance pools.
 
 ---
 
@@ -24,10 +24,10 @@ The **StarkInsure Web** is the Next.js frontend for the StarkInsure DeFi insuran
 ## 🛠️ Tech Stack  
 | Component           | Technology                                                                 |
 |---------------------|---------------------------------------------------------------------------|
-| Framework           | [Next.js 14](https://nextjs.org/) (App Router)                           |
+| Framework           | [Next.js 15](https://nextjs.org/) (App Router)                           |
 | State Management    | [Zustand](https://zustand-demo.pmnd.rs/)                                 |
 | Styling            | [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/) |
-| Blockchain         | [StarkNet.js](https://www.starknetjs.com/) + [get-starknet](https://github.com/starknet-io/get-starknet) |
+| Blockchain         | [Starknet.js](https://www.starknetjs.com/) + [@starknet.io/get-starknet](https://github.com/starknet-io/get-starknet) |
 
 ---
 
@@ -36,7 +36,7 @@ The **StarkInsure Web** is the Next.js frontend for the StarkInsure DeFi insuran
 ### Prerequisites  
 - Node.js v18+  
 - pnpm 8+  
-- StarkNet wallet (ArgentX/Braavos)
+- Starknet wallet (ArgentX/Braavos)
 
 ## 📂 Project Structure
 
@@ -52,11 +52,11 @@ src/
 ### Installation  
 1. **Clone the repo**:  
    ```bash
-   git clone https://github.com/CRYPTOInsured-Foundation/starkinsure-web.git
-   cd starkinsure-web
+   git clone https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-web.git
+   cd starknet-indemnify-web
    pnpm install
-   cp .env.example .env.local
-   pnpm dev
+   cp .env.example .env
+   pnpm run dev
    ```
 
 ## 🤝 Contributing
