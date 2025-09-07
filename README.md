@@ -27,7 +27,7 @@ The **Starknet-Indemnify-Web** is the Next.js frontend for the Starknet-Indemnif
 - https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-risk-analytics.git
 - https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-policy-service.git
 - https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-payment-service.git
-You can visit these repos to pick issues you can implement feature on. 
+- -You can visit these repos to pick issues you can implement feature on. 
 ---
 
 ## 🛠️ Tech Stack  
