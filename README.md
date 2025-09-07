@@ -1,6 +1,6 @@
 # Starknet-Indemnify-Web
 
-The **Starknet-Indemnify-Web** is the Next.js frontend for the Starknet-Indemnify DeFi insurance platform, providing users with a seamless interface to manage policies, file claims, and interact with StarkNet-powered insurance pools.
+The **Starknet-Indemnify-Web** is the Next.js frontend for the Starknet-Indemnify DeFi insurance platform, providing users with a seamless interface to manage policies, file claims, and interact with Starknet-powered insurance pools.
 
 ---
 
@@ -19,6 +19,15 @@ The **Starknet-Indemnify-Web** is the Next.js frontend for the Starknet-Indemnif
   - 📱 Mobile-optimized flows  
   - 🖥️ Desktop trading interface  
 
+---
+
+## Other Repositories `starknet-indemnify-web` depends on:
+- https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-user-service.git
+- https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-on-chain.git
+- https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-risk-analytics.git
+- https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-policy-service.git
+- https://github.com/CRYPTOInsured-Foundation/starknet-indemnify-payment-service.git
+You can visit these repos to pick issues you can implement feature on. 
 ---
 
 ## 🛠️ Tech Stack  
