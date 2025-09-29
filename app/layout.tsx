@@ -6,6 +6,9 @@ import Footer from '@/components/layout/Footer';
 import WalletProvider from '@/components/providers/WalletProvider';
 import Script from 'next/script'; // <-- add this
 
+import { StoreProvider } from '@/stores/store-provider';
+import { StarknetProvider } from '@/providers/StarknetProvider';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
@@ -28,17 +31,26 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <WalletProvider>
-          <div className="min-h-screen flex flex-col">
-            <Header />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </WalletProvider>
+        <StoreProvider>
+          <StarknetProvider>
+
+            <WalletProvider>
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+              </div>
+            </WalletProvider>
+          </StarknetProvider>
+        </StoreProvider>
       </body>
     </html>
   );
 }
+
+
+// echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf && sudo sysctl -p
+
 
 
 
