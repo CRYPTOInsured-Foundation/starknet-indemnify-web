@@ -5,6 +5,7 @@ import { AuthStore, User } from '../types/common';
 import { API_CONFIG } from '../config/urls';
 import { getCookie } from '../lib/utils';
 import { NextRouter } from 'next/router';
+import { Signature } from 'starknet';
 
 
 const initialState = {
@@ -79,10 +80,10 @@ export const useAuthStore = create<AuthStore>()(
       },
       verifySignature: async (
         walletAddress: string,
-        signature: [string, string],
+        // signature: [string, string],
+        signature: Signature,
         nonce: string,
         walletType: 'argentx' | 'braavos',
-        locale: string
       ) => {
         set({ loading: true });
 
@@ -120,7 +121,7 @@ export const useAuthStore = create<AuthStore>()(
             loading: false,
             error: null,
           });
-          window.location.href = `/${locale}/creator-dashboard`;
+          window.location.href = "dashboard";
         } catch (error) {
           const message = error instanceof Error ? error.message : 'Verification failed';
           set({ error: message, loading: false });

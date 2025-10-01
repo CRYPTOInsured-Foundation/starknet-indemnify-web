@@ -4,19 +4,21 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { useWalletStore } from '@/stores/wallet';
+// import { useWalletStore } from '@/stores/wallet';
+import { useWalletStore } from '@/stores/use-wallet-store';
 import { Shield, Menu, X, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const Header = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isConnected, address, isConnecting, connect, disconnect } = useWalletStore();
+  const { isConnected, address, isConnecting, connectWallet, disconnectWallet } = useWalletStore();
+
 
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'About', href: '/about' },
-    { name: 'Services', href: '/services' },
+    { name: 'Products', href: '/products' },
     { name: 'Dashboard', href: '/dashboard', protected: true },
   ];
 
@@ -66,12 +68,12 @@ const Header = () => {
                     {formatAddress(address)}
                   </span>
                 </div>
-                <Button variant="outline" size="sm" onClick={disconnect}>
+                <Button variant="outline" size="sm" onClick={() => disconnectWallet()}>
                   Disconnect
                 </Button>
               </div>
             ) : (
-              <Button onClick={connect} disabled={isConnecting}>
+              <Button onClick={() => connectWallet()} disabled={isConnecting}>
                 {isConnecting ? 'Connecting...' : 'Connect Wallet'}
               </Button>
             )}
@@ -124,12 +126,12 @@ const Header = () => {
                       {formatAddress(address)}
                     </span>
                   </div>
-                  <Button variant="outline" size="sm" onClick={disconnect} className="w-full">
+                  <Button variant="outline" size="sm" onClick={() => disconnectWallet()} className="w-full">
                     Disconnect
                   </Button>
                 </div>
               ) : (
-                <Button onClick={connect} disabled={isConnecting} className="w-full">
+                <Button onClick={() => connectWallet()} disabled={isConnecting} className="w-full">
                   {isConnecting ? 'Connecting...' : 'Connect Wallet'}
                 </Button>
               )}

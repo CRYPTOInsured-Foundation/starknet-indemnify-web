@@ -1,3 +1,5 @@
+import { Signature } from "starknet";
+
 // Auth Store Types
 export interface User {
     sub: string;
@@ -23,7 +25,7 @@ export interface User {
     setLoading: (loading: boolean) => void;
     setError: (error: string | null) => void;
     requestNonce: (walletAddress: string) => Promise<string>;
-    verifySignature: (walletAddress: string, signature: string) => Promise<void>;
+    verifySignature: (walletAddress: string, signature: Signature) => Promise<void>;
     logout: () => Promise<void>;
     clearError: () => void;
   }
@@ -42,10 +44,10 @@ export interface User {
     requestNonce: (walletAddress: string) => Promise<string>;
     verifySignature: (
       walletAddress: string,
-      signature: [string, string], // Changed from string to [string, string]
+      // signature: [string, string], // Changed from string to [string, string]
+      signature: Signature,
       nonce: string,
       walletType: 'argentx' | 'braavos',
-      locale: string
     ) => Promise<void>;
     logout: () => Promise<void>;
   };

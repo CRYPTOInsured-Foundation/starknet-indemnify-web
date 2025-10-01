@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import WalletProvider from '@/components/providers/WalletProvider';
+// import WalletProvider from '@/components/providers/WalletProvider';
 import Script from 'next/script'; // <-- add this
 
 import { StoreProvider } from '@/stores/store-provider';
@@ -12,8 +12,8 @@ import { StarknetProvider } from '@/providers/StarknetProvider';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'StarkInsure - DeFi Insurance on StarkNet',
-  description: 'Protect your digital assets with comprehensive on-chain insurance solutions on StarkNet.',
+  title: 'Starknet-Indemnify - DeFi Insurance on Starknet',
+  description: 'Protect your digital assets with comprehensive on-chain insurance solutions on Starknet.',
 };
 
 export default function RootLayout({
@@ -21,6 +21,7 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  
   return (
     <html lang="en">
       <head>
@@ -33,14 +34,11 @@ export default function RootLayout({
       <body className={inter.className}>
         <StoreProvider>
           <StarknetProvider>
-
-            <WalletProvider>
               <div className="min-h-screen flex flex-col">
                 <Header />
                 <main className="flex-1">{children}</main>
                 <Footer />
               </div>
-            </WalletProvider>
           </StarknetProvider>
         </StoreProvider>
       </body>

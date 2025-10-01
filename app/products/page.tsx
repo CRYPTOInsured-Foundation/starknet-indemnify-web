@@ -1,7 +1,11 @@
+"use client"
+
+import { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Banknote, Layers, Grid as Bridge, CheckCircle, ArrowRight, TrendingUp, Users } from 'lucide-react';
+import { useWalletStore } from '@/stores/use-wallet-store';
 
 export default function Services() {
   const services = [
@@ -60,6 +64,12 @@ export default function Services() {
       description: 'Token holders participate in governance decisions, ensuring the platform evolves with user needs.',
     },
   ];
+
+  const restoreConnection = useWalletStore((s) => s.restoreConnection);
+
+  useEffect(() => {
+    restoreConnection();
+  }, [restoreConnection]);
 
   return (
     <div className="w-full">

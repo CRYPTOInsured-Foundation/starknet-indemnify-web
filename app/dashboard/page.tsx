@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import PolicyCard from '@/components/ui/policy-card';
 import { usePoliciesStore } from '@/stores/policies';
-import { useWalletStore } from '@/stores/wallet';
+
+import { useWalletStore } from '@/stores/use-wallet-store';
+
 import { 
   Shield, 
   TrendingUp, 
@@ -264,6 +266,15 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
+
+  const restoreConnection = useWalletStore((s) => s.restoreConnection);
+
+  useEffect(() => {
+    restoreConnection();
+  }, [restoreConnection]);
+
+
+
   return (
     <ProtectedRoute>
       <DashboardContent />
