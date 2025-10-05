@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import ProtectedRoute from '@/components/guards/ProtectedRoute';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,6 +9,7 @@ import PolicyCard from '@/components/ui/policy-card';
 import { usePoliciesStore } from '@/stores/policies';
 
 import { useWalletStore } from '@/stores/use-wallet-store';
+import { useRootStore } from '@/stores/use-root-store';
 
 import { 
   Shield, 
@@ -23,8 +24,11 @@ import {
 
 function DashboardContent() {
   const { policies, loading, fetchPolicies } = usePoliciesStore();
-  const { address } = useWalletStore();
+  const { address, createWallet } = useRootStore();
   const [selectedPolicy, setSelectedPolicy] = useState<string | null>(null);
+
+  const PUB_KEY = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY;
+  const ENC_KEY = process.env.NEXT_PUBLIC_CHIPI_SECRET_KEY;
 
   useEffect(() => {
     fetchPolicies();
@@ -267,7 +271,35 @@ function DashboardContent() {
 
 export default function Dashboard() {
 
-  const restoreConnection = useWalletStore((s) => s.restoreConnection);
+  // const restoreConnection = useRootStore((s) => s.restoreConnection);
+
+  const PUB_KEY  = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY!;
+  const ENC_KEY = process.env.NEXT_PUBLIC_CHIPI_SECRET_KEY!;
+
+  const { restoreConnection, createWallet } = useRootStore();
+
+  let newWallet = useCallback(async () => {
+
+    let myWallet = await createWallet({
+      encryptKey: ENC_KEY,
+      externalUserId: "a233f-c3a3-bcd1-cba34",
+      bearerToken: PUB_KEY
+  
+    });
+
+    return myWallet
+  }, []);
+
+  newWallet().then(wallet => console.log("Chipi Wallet: ", wallet));
+
+
+  
+  
+  useEffect(() => {
+      
+
+  },[]);
+
 
   useEffect(() => {
     restoreConnection();

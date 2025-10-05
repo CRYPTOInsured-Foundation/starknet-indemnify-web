@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Target, Users, Award, ArrowRight } from 'lucide-react';
 import { useWalletStore } from '@/stores/use-wallet-store';
+import { useRootStore } from '@/stores/use-root-store';
 
 export default function About() {
   const values = [
@@ -52,7 +53,7 @@ export default function About() {
   ];
 
 
-  const restoreConnection = useWalletStore((s) => s.restoreConnection);
+  const restoreConnection = useRootStore((s) => s.restoreConnection);
 
   useEffect(() => {
     restoreConnection();

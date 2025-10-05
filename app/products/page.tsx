@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Shield, Banknote, Layers, Grid as Bridge, CheckCircle, ArrowRight, TrendingUp, Users } from 'lucide-react';
 import { useWalletStore } from '@/stores/use-wallet-store';
+import { useRootStore } from '@/stores/use-root-store';
 
 export default function Services() {
   const services = [
@@ -65,7 +66,7 @@ export default function Services() {
     },
   ];
 
-  const restoreConnection = useWalletStore((s) => s.restoreConnection);
+  const restoreConnection = useRootStore((s) => s.restoreConnection);
 
   useEffect(() => {
     restoreConnection();

@@ -1,36 +1,28 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { initializeStores } from "./index";
 import { usePreferencesStore } from "./preferences-store";
 
 interface StoreProviderProps {
   children: React.ReactNode;
 }
 
+/**
+ * ✅ StoreProvider
+ * Ensures Zustand stores (especially preferences) are hydrated before rendering the app.
+ * No external initialization logic (e.g., initializeStores) is called.
+ */
 export function StoreProvider({ children }: StoreProviderProps) {
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isReady, setIsReady] = useState(false);
   const isHydrated = usePreferencesStore((state) => state.isHydrated);
 
   useEffect(() => {
-    const init = async () => {
-      try {
-        await initializeStores();
-        setIsInitialized(true);
-      } catch (error) {
-        console.error("Failed to initialize stores:", error);
-        setIsInitialized(true); // Still render the app
-      }
-    };
-
-    // Only initialize after preferences are hydrated
     if (isHydrated) {
-      init();
+      setIsReady(true);
     }
   }, [isHydrated]);
 
-  // Show loading state while stores are initializing
-  if (!isInitialized || !isHydrated) {
+  if (!isReady) {
     return (
       <div className="min-h-[100svh] bg-gradient-to-b from-[#0f0c38] via-[#181359] to-[#241970] flex items-center justify-center">
         <div className="text-center">
@@ -44,16 +36,79 @@ export function StoreProvider({ children }: StoreProviderProps) {
   return <>{children}</>;
 }
 
-// Optional: Hook to check if stores are ready
+/**
+ * ✅ Hook for components that need to know when stores are ready
+ */
 export const useStoresReady = () => {
-  const [isInitialized, setIsInitialized] = useState(false);
   const isHydrated = usePreferencesStore((state) => state.isHydrated);
-
-  useEffect(() => {
-    if (isHydrated) {
-      setIsInitialized(true);
-    }
-  }, [isHydrated]);
-
-  return isInitialized && isHydrated;
+  return isHydrated;
 };
+
+
+
+
+
+
+
+
+
+
+// "use client";
+
+// import { useEffect, useState } from "react";
+// import { initializeStores } from "./index";
+// import { usePreferencesStore } from "./preferences-store";
+
+// interface StoreProviderProps {
+//   children: React.ReactNode;
+// }
+
+// export function StoreProvider({ children }: StoreProviderProps) {
+//   const [isInitialized, setIsInitialized] = useState(false);
+//   const isHydrated = usePreferencesStore((state) => state.isHydrated);
+
+//   useEffect(() => {
+//     const init = async () => {
+//       try {
+//         await initializeStores();
+//         setIsInitialized(true);
+//       } catch (error) {
+//         console.error("Failed to initialize stores:", error);
+//         setIsInitialized(true); // Still render the app
+//       }
+//     };
+
+//     // Only initialize after preferences are hydrated
+//     if (isHydrated) {
+//       init();
+//     }
+//   }, [isHydrated]);
+
+//   // Show loading state while stores are initializing
+//   if (!isInitialized || !isHydrated) {
+//     return (
+//       <div className="min-h-[100svh] bg-gradient-to-b from-[#0f0c38] via-[#181359] to-[#241970] flex items-center justify-center">
+//         <div className="text-center">
+//           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto mb-4"></div>
+//           <p className="text-white text-lg">Loading Starknet-Indemnify...</p>
+//         </div>
+//       </div>
+//     );
+//   }
+
+//   return <>{children}</>;
+// }
+
+// // Optional: Hook to check if stores are ready
+// export const useStoresReady = () => {
+//   const [isInitialized, setIsInitialized] = useState(false);
+//   const isHydrated = usePreferencesStore((state) => state.isHydrated);
+
+//   useEffect(() => {
+//     if (isHydrated) {
+//       setIsInitialized(true);
+//     }
+//   }, [isHydrated]);
+
+//   return isInitialized && isHydrated;
+// };

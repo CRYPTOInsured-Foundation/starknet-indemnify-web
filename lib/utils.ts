@@ -30,3 +30,7 @@ export async function getCookie(): Promise<string> {
     throw error;
   }
 }
+
+export function getBearerToken () {
+  return process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY!
+}

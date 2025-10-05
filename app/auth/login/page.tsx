@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useWalletStore } from "@/stores/use-wallet-store";
-import { AuthStore, useAuthStore } from "@/stores";
+// import { AuthStore, useAuthStore } from "../../../stores/use-root-store";
+import { useRootStore } from "../../../stores/use-root-store";
+
 
 export default function LoginPage() {
   const router = useRouter();
@@ -17,7 +19,7 @@ export default function LoginPage() {
         requestNonce,
         verifySignature,
         clearError
-    } = useAuthStore();
+    } = useRootStore();
 
   const [nonce, setNonce] = useState("");
   const [loading, setLoading] = useState(false);

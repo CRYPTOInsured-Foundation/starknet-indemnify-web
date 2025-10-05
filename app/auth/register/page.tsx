@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { useWalletStore } from "@/stores/use-wallet-store";
+import { useRootStore } from "@/stores/use-root-store";
 import { wallet } from "starknet";
 
 export default function RegisterPage() {
@@ -18,10 +19,10 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  let { address, connectWallet, disconnectWallet } = useWalletStore();
+  let { address, connectWallet, disconnectWallet } = useRootStore();
 
 
-  const restoreConnection = useWalletStore((s) => s.restoreConnection);
+  const restoreConnection = useRootStore((s) => s.restoreConnection);
 
   useEffect(() => {
     restoreConnection();

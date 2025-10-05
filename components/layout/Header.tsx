@@ -9,6 +9,8 @@ import { useWalletStore } from '@/stores/use-wallet-store';
 import { Shield, Menu, X, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+// encodeURIComponent("http://localhost:3000")
+
 const Header = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);

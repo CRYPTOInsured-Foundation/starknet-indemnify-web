@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 // import WalletProvider from '@/components/providers/WalletProvider';
 import Script from 'next/script'; // <-- add this
+import { ChipiProvider, useChipiContext, type ChipiSDKConfig } from '@chipi-pay/chipi-sdk';
 
 import { StoreProvider } from '@/stores/store-provider';
 import { StarknetProvider } from '@/providers/StarknetProvider';
@@ -15,6 +16,16 @@ export const metadata: Metadata = {
   title: 'Starknet-Indemnify - DeFi Insurance on Starknet',
   description: 'Protect your digital assets with comprehensive on-chain insurance solutions on Starknet.',
 };
+
+let PUB_KEY = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY!;
+
+
+const chipiConfig: ChipiSDKConfig = {
+  apiPublicKey: process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY as string,
+  // environment: 'sandbox', // or 'production'
+  // enableLogging: true, // optional
+};
+
 
 export default function RootLayout({
   children,
@@ -32,15 +43,18 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <StoreProvider>
-          <StarknetProvider>
-              <div className="min-h-screen flex flex-col">
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-              </div>
-          </StarknetProvider>
-        </StoreProvider>
+        <ChipiProvider config={chipiConfig}>
+
+          <StoreProvider>
+            <StarknetProvider>
+                <div className="min-h-screen flex flex-col">
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                </div>
+            </StarknetProvider>
+          </StoreProvider>
+        </ChipiProvider>
       </body>
     </html>
   );
