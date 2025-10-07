@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 // import { useWalletStore } from '@/stores/wallet';
 import { useWalletStore } from '@/stores/use-wallet-store';
+import { useRootStore } from '@/stores/use-root-store';
 import { Shield, Menu, X, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -14,7 +15,7 @@ import { cn } from '@/lib/utils';
 const Header = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isConnected, address, isConnecting, connectWallet, disconnectWallet } = useWalletStore();
+  const { isConnected, address, isConnecting, connectWallet, disconnectWallet } = useRootStore();
 
 
   const navigation = [

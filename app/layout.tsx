@@ -43,7 +43,6 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <ChipiProvider config={chipiConfig}>
 
           <StoreProvider>
             <StarknetProvider>
@@ -54,7 +53,6 @@ export default function RootLayout({
                 </div>
             </StarknetProvider>
           </StoreProvider>
-        </ChipiProvider>
       </body>
     </html>
   );
