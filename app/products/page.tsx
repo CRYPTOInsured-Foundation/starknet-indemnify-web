@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -66,11 +66,15 @@ export default function Services() {
     },
   ];
 
-  const restoreConnection = useRootStore((s) => s.restoreConnection);
+
+  const { restoreConnection } = useRootStore();
 
   useEffect(() => {
     restoreConnection();
   }, [restoreConnection]);
+
+
+ 
 
   return (
     <div className="w-full">

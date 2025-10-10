@@ -21,18 +21,99 @@ import {
   DollarSign,
   FileText
 } from 'lucide-react';
+import { useCreateWallet } from '@chipi-pay/chipi-sdk';
 
 function DashboardContent() {
   const { policies, loading, fetchPolicies } = usePoliciesStore();
-  const { address, createWallet } = useRootStore();
+  const { address, user } = useRootStore();
   const [selectedPolicy, setSelectedPolicy] = useState<string | null>(null);
 
-  const PUB_KEY = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY;
+  const PUB_KEY = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY!;
   const ENC_KEY = process.env.NEXT_PUBLIC_CHIPI_SECRET_KEY;
 
   useEffect(() => {
     fetchPolicies();
   }, [fetchPolicies]);
+
+  // let { createWalletAsync } = useCreateWallet();
+
+  const result = useCreateWallet();
+  const { createWallet, createWalletAsync } = useCreateWallet();
+console.log('FULL useCreateWallet result:', result);
+console.log('Type of createWalletAsync:', typeof result.createWalletAsync);
+
+// const handleCreateWallet = () => {
+//   createWallet({
+//     encryptKey: PUB_KEY,
+//     // externalUserId: "user_" + Date.now(),
+//     bearerToken: "my_bearer_token",
+//   });
+// };
+
+// Add error handling to see the exact error
+const handleCreateWallet = async () => {
+  try {
+    await createWalletAsync({
+      encryptKey: PUB_KEY,
+      bearerToken: "my_bearer_token",
+    });
+  } catch (error) {
+    console.log('FULL ERROR:', error);
+    console.log('Error message:', error instanceof Error ? error.message);
+    console.log('Error stack:', error instanceof Error ? error.stack);
+  }
+};
+
+  // const { 
+  //   //mutate: createWallet, 
+  //   isLoading, 
+  //   isError,
+  //   // error, 
+  //   // data 
+  // } = useCreateWallet();
+
+  // console.log(createWalletAsync);
+
+  // const createWalletFunc = useCallback(() => {
+  //   createWalletAsync({
+      
+  //   });
+
+ 
+  // },[]) 
+
+  // const wallet = await createWalletAsync({
+  //   params: {
+  //     encryptKey: pin,
+  //     externalUserId,
+  //   },
+  //   bearerToken,
+  // });
+  // alert('Wallet created successfully!');
+
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   // const bearerToken = await getBearerToken();
+  //   try {
+  //     const wallet = await createWalletAsync({
+  //       params: {
+  //         encryptKey: "",
+  //         externalUserId: "",
+  //       },
+  //       bearerToken: "bearer",
+  //     });
+  //     alert('Wallet created successfully!');
+  //   } catch (err) {
+  //     console.error('Wallet creation failed:', err);
+  //   }
+  // };
+
+  // useEffect(() => {
+  //   createWalletFunc();
+  //   () => {};
+  // },[])
+
+
 
   const handleManagePolicy = (policyId: string) => {
     setSelectedPolicy(policyId);
@@ -256,7 +337,7 @@ function DashboardContent() {
                   <FileText className="h-4 w-4 mr-2" />
                   File a Claim
                 </Button>
-                <Button variant="outline" className="w-full justify-start">
+                <Button onClick={() => handleCreateWallet()}  variant="outline" className="w-full justify-start">
                   <AlertTriangle className="h-4 w-4 mr-2" />
                   Risk Assessment
                 </Button>
@@ -276,29 +357,24 @@ export default function Dashboard() {
   const PUB_KEY  = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY!;
   const ENC_KEY = process.env.NEXT_PUBLIC_CHIPI_SECRET_KEY!;
 
-  const { restoreConnection, createWallet } = useRootStore();
+  const { restoreConnection, createWallet, loginWithOAuth } = useRootStore();
 
-  let newWallet = useCallback(async () => {
+  // let newWallet = useCallback(async () => {
 
-    let myWallet = await createWallet({
-      encryptKey: ENC_KEY,
-      externalUserId: "a233f-c3a3-bcd1-cba34",
-      bearerToken: PUB_KEY
+  //   let myWallet = await createWallet({
+  //     encryptKey: ENC_KEY,
+  //     externalUserId: "a233f-c3a3-bcd1-cba34",
+  //     bearerToken: PUB_KEY
   
-    });
+  //   });
 
-    return myWallet
-  }, []);
+  //   return myWallet
+  // }, []);
 
-  newWallet().then(wallet => console.log("Chipi Wallet: ", wallet));
+  // newWallet().then(wallet => console.log("Chipi Wallet: ", wallet));
 
 
   
-  
-  useEffect(() => {
-      
-
-  },[]);
 
 
   useEffect(() => {

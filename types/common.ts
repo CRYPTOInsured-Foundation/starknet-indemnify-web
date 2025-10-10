@@ -2,13 +2,13 @@ import { Signature } from "starknet";
 
 // Auth Store Types
 export interface User {
+    id: string;
     sub: string;
     walletAddress: string;
-    isArtist?: boolean;
-    username?: string;
+    name?: string;
     email?: string;
-    profileImage?: string;
-    bio?: string;
+    avatar?: string;
+    token?: string;
     createdAt?: string;
     updatedAt?: string;
   }
@@ -47,8 +47,14 @@ export interface User {
       // signature: [string, string], // Changed from string to [string, string]
       signature: Signature,
       nonce: string,
-      walletType: 'argentx' | 'braavos',
+      walletType: 'argentx' | 'braavos' | null,
     ) => Promise<void>;
+    loginWithEmail: (
+      email: string,
+      password: string
+
+    ) => Promise<void>;
+    loginWithOAuth: () => Promise<void>;
     logout: () => Promise<void>;
   };
   

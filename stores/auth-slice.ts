@@ -262,7 +262,7 @@ export const createAuthSlice: StateCreator<AuthStore> = (set, get) => ({
     walletAddress: string,
     signature: Signature,
     nonce: string,
-    walletType: 'argentx' | 'braavos'
+    walletType: 'argentx' | 'braavos' | null
   ) => {
     set({ loading: true });
     try {
@@ -301,6 +301,90 @@ export const createAuthSlice: StateCreator<AuthStore> = (set, get) => ({
       throw error;
     }
   },
+
+  // ------------------------
+  // 🔹 Email + Password login
+  // ------------------------
+  loginWithEmail: async (email: string, password: string) => {
+    set({ loading: true });
+    try {
+      const csrfRes = await fetch(`${API_CONFIG.baseUrl}/auth/csrf-token`, {
+        credentials: "include",
+      });
+      const { csrfToken } = await csrfRes.json();
+
+      const res = await fetch(`${API_CONFIG.baseUrl}/auth/login/email`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-Token": csrfToken,
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || "Login failed");
+      }
+
+      const result = await res.json();
+      const user = result.data?.data.user || result.user || null;
+
+      localStorage.setItem("auth-user", JSON.stringify({ data: user }));
+      set({ user, isAuthenticated: true, loading: false, error: null });
+
+      window.location.href = "/dashboard";
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Login failed";
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
+  // ------------------------
+  // 🔹 OAuth (Google, etc.) login
+  // ------------------------
+  loginWithOAuth: async () => {
+    set({ loading: true });
+    try {
+    
+
+      const csrfToken = await getCookie();
+    
+      const res = await fetch(`${API_CONFIG.baseUrl}/auth/me`, {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken,
+        },
+      });  
+  
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch user after OAuth login");
+      }
+
+      const result = await res.json();
+      console.log("User from slice: ", result);
+      const user = result.data?.data.user || result.user || null;
+
+
+      if (!user) throw new Error("No user data received from OAuth session");
+
+      localStorage.setItem("auth-user", JSON.stringify({ data: user }));
+      set({ user, isAuthenticated: true, loading: false, error: null });
+
+      window.location.href = "/dashboard";
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : "OAuth login failed";
+      set({ error: message, loading: false });
+      throw error;
+    }
+  },
+
 
   logout: async (): Promise<void> => {
     try {

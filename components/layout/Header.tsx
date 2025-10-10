@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 // import { useWalletStore } from '@/stores/wallet';
 import { useWalletStore } from '@/stores/use-wallet-store';
@@ -15,7 +15,28 @@ import { cn } from '@/lib/utils';
 const Header = () => {
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isConnected, address, isConnecting, connectWallet, disconnectWallet } = useRootStore();
+  const { 
+    isConnected, 
+    address, 
+    isConnecting, 
+    connectWallet, 
+    disconnectWallet,
+    user,
+    isAuthenticated,
+    logout,
+    loading,
+    setLoading
+
+  } = useRootStore();
+  // const { user, isAuthenticated, logout, loading } = useAuthStore();
+
+  console.log("User is Authenticated: ", isAuthenticated);
+  console.log("User: ", user);
+
+  useEffect(() => {
+    if(isAuthenticated) setLoading(false);
+  }, []);
+
 
 
   const navigation = [
@@ -43,7 +64,7 @@ const Header = () => {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex space-x-8">
             {navigation.map((item) => {
-              if (item.protected && !isConnected) return null;
+              if (item.protected && !isAuthenticated) return null;
               return (
                 <Link
                   key={item.name}
@@ -62,7 +83,7 @@ const Header = () => {
           </nav>
 
           {/* Wallet Connection */}
-          <div className="hidden md:flex items-center space-x-4">
+          {/* <div className="hidden md:flex items-center space-x-4">
             {isConnected ? (
               <div className="flex items-center space-x-2">
                 <div className="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-lg">
@@ -80,7 +101,47 @@ const Header = () => {
                 {isConnecting ? 'Connecting...' : 'Connect Wallet'}
               </Button>
             )}
-          </div>
+          </div> */}
+
+          {/* Wallet + Auth Actions */}
+<div className="hidden md:flex items-center space-x-4">
+  {isConnected ? (
+    <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-lg">
+        <Wallet className="h-4 w-4 text-green-600" />
+        <span className="text-sm font-medium text-gray-700">
+          {formatAddress(address)}
+        </span>
+      </div>
+      <Button variant="outline" size="sm" onClick={() => disconnectWallet()}>
+        Disconnect
+      </Button>
+    </div>
+  ) : (
+    <Button onClick={() => connectWallet()} disabled={isConnecting}>
+      {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+    </Button>
+  )}
+
+  {/* 👇 Logout button appears only if authenticated */}
+  {isAuthenticated && (
+    <Button
+      variant="destructive"
+      size="sm"
+      onClick={async () => {
+        try {
+          await logout();
+        } catch (e) {
+          console.error('Logout failed', e);
+        }
+      }}
+      disabled={loading}
+    >
+      {loading ? 'Logging out...' : 'Logout'}
+    </Button>
+  )}
+</div>
+
 
           {/* Mobile Menu Button */}
           <button
@@ -120,7 +181,7 @@ const Header = () => {
             </nav>
             
             {/* Mobile Wallet Connection */}
-            <div className="mt-4 pt-4 border-t">
+            {/* <div className="mt-4 pt-4 border-t">
               {isConnected ? (
                 <div className="space-y-2">
                   <div className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg">
@@ -138,7 +199,58 @@ const Header = () => {
                   {isConnecting ? 'Connecting...' : 'Connect Wallet'}
                 </Button>
               )}
-            </div>
+            </div> */}
+
+            {/* Mobile Wallet Connection */}
+<div className="mt-4 pt-4 border-t space-y-2">
+  {isConnected ? (
+    <>
+      <div className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg">
+        <Wallet className="h-4 w-4 text-green-600" />
+        <span className="text-sm font-medium text-gray-700">
+          {formatAddress(address)}
+        </span>
+      </div>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => disconnectWallet()}
+        className="w-full"
+      >
+        Disconnect
+      </Button>
+    </>
+  ) : (
+    <Button
+      onClick={() => connectWallet()}
+      disabled={isConnecting}
+      className="w-full"
+    >
+      {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+    </Button>
+  )}
+
+  {/* 👇 Logout button for mobile */}
+  {isAuthenticated && (
+    <Button
+      variant="destructive"
+      size="sm"
+      className="w-full"
+      onClick={async () => {
+        try {
+          await logout();
+          setIsMenuOpen(false);
+        } catch (e) {
+          console.error('Logout failed', e);
+        }
+      }}
+      disabled={loading}
+    >
+      {loading ? 'Logging out...' : 'Logout'}
+    </Button>
+  )}
+</div>
+
           </div>
         )}
       </div>
