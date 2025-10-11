@@ -1,25 +1,84 @@
-// app/inspection-detail/[id]/page.tsx
 import InspectionDetailPage from "./InspectionDetailPage";
 
-// 🔹 Required for static export - return empty array for dynamic rendering
+// ✅ This runs **at build time** to generate static pages for each inspection
 export async function generateStaticParams() {
-  return [];
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inspections`, {
+      // Ensure Next.js fetches at build time
+      cache: 'force-cache',
+    });
+
+    if (!res.ok) {
+      console.error("❌ Failed to fetch inspections for static generation");
+      return [];
+    }
+
+    const json = await res.json();
+
+    // Normalize data structure based on your backend response
+    const inspections = json?.data?.data || json?.data || json || [];
+
+    // Return all available inspection IDs
+    const params = inspections
+      .filter((insp: any) => insp?.id)
+      .map((insp: any) => ({
+        id: insp.id.toString(),
+      }));
+
+    console.log("✅ Static Params Generated:", params);
+
+    return params;
+  } catch (error) {
+    console.error("❌ Error in generateStaticParams:", error);
+    return [];
+  }
 }
 
-// 🔹 Force dynamic rendering since we're loading from client
-export const dynamic = 'force-dynamic';
-
+// ✅ Metadata generation for SEO and clarity
 export async function generateMetadata({ params }: { params: { id: string } }) {
   return {
-    title: `Inspection ${params.id}`,
-    description: `Details for inspection ${params.id}`,
+    title: `Inspection Details | ${params.id}`,
+    description: `Detailed inspection record for ID ${params.id}`,
   };
 }
 
-// ✅ Default export
+// ✅ Default export - purely client-rendered component
 export default function Page() {
   return <InspectionDetailPage />;
 }
+
+
+
+
+
+
+
+
+
+
+
+// // app/inspection-detail/[id]/page.tsx
+// import InspectionDetailPage from "./InspectionDetailPage";
+
+// // 🔹 Required for static export - return empty array for dynamic rendering
+// export async function generateStaticParams() {
+//   return [];
+// }
+
+// // 🔹 Force dynamic rendering since we're loading from client
+// export const dynamic = 'force-dynamic';
+
+// export async function generateMetadata({ params }: { params: { id: string } }) {
+//   return {
+//     title: `Inspection ${params.id}`,
+//     description: `Details for inspection ${params.id}`,
+//   };
+// }
+
+// // ✅ Default export
+// export default function Page() {
+//   return <InspectionDetailPage />;
+// }
 
 
 
