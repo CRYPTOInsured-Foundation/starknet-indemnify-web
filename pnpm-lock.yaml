@@ -8,12 +8,27 @@ importers:
 
   .:
     dependencies:
+      '@atomiqlabs/chain-starknet':
+        specifier: ^5.1.5
+        version: 5.1.5(starknet@8.5.4)
+      '@atomiqlabs/sdk':
+        specifier: ^6.0.3
+        version: 6.0.3(@noble/curves@1.9.7)
       '@chipi-pay/chipi-sdk':
         specifier: ^3.2.2
         version: 3.2.2(@tanstack/react-query@5.90.2(react@19.1.1))(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(express@5.1.0)(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)(starknet@8.5.4)
+      '@chipi-stack/backend':
+        specifier: ^11.5.0
+        version: 11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)
+      '@chipi-stack/chipi-react':
+        specifier: ^11.5.0
+        version: 11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@chipi-stack/nextjs':
         specifier: ^11.2.0
         version: 11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(next@15.5.2(@babel/core@7.28.4)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@chipi-stack/types':
+        specifier: ^11.5.0
+        version: 11.5.0
       '@hookform/resolvers':
         specifier: ^3.9.0
         version: 3.10.0(react-hook-form@7.62.0(react@19.1.1))
@@ -125,8 +140,11 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
+      embla-carousel-autoplay:
+        specifier: ^8.6.0
+        version: 8.6.0(embla-carousel@8.6.0)
       embla-carousel-react:
-        specifier: ^8.3.0
+        specifier: ^8.6.0
         version: 8.6.0(react@19.1.1)
       immer:
         specifier: ^10.1.3
@@ -275,6 +293,26 @@ packages:
       tailwindcss-animate: ^1.0.7
       url-join: 5.0.0
       zod: 4.0.5
+
+  '@atomiqlabs/base@11.0.0':
+    resolution: {integrity: sha512-0UakOv9nk73sq+Ctfqy+bXuk5uSJ2UMgtgTVnj0h/UPGeM0gRr55iEra9gJrw1MWYC7HE1z0Jf+u0FdppJFpoA==}
+
+  '@atomiqlabs/bolt11@1.6.1':
+    resolution: {integrity: sha512-glzUVsYKTenPbIflI3Dmu3MHibc1b6iR4DaeX3fFeh5dnv0XflhFcxpcGG36GSW0KQbB2hKK36bXSuSleoFizw==}
+    peerDependencies:
+      '@noble/curves': ^1.8.1
+      '@noble/hashes': ^1.7.1
+
+  '@atomiqlabs/chain-starknet@5.1.5':
+    resolution: {integrity: sha512-cUAtEHeAbWnq/qE0nTpqd0/TQD+iqiToaFuaybRjg9Mxw3u4JyM5M1TENBg1B9uIFBBQjYrIes7b9h5/kylw1Q==}
+    peerDependencies:
+      starknet: ^7.5.0
+
+  '@atomiqlabs/sdk-lib@15.0.17':
+    resolution: {integrity: sha512-AAD//hpvbdM5ApGhMcEhgTSfe4V3XzbDBDfRpEqyj0H8UoVsdBX4IhLt/VYlB8LrpYZrE2klsPmmP/H8HXIMJQ==}
+
+  '@atomiqlabs/sdk@6.0.3':
+    resolution: {integrity: sha512-ssLXVv7C6jFMJdQ8nECSa+6gxBUIrWNnCeH9nMTpXhtsJGCrnyhv3ftoauTRVJLAV7jPMLMjngRSa/Om75al1Q==}
 
   '@avnu/gasless-sdk@0.1.8':
     resolution: {integrity: sha512-0URzcZ3WAOWmMVhz/hk8BJhGwHP2VPoG7qiaYAntpxRReN+K5V0vKn5g9ksTwUTcEId8pF4ozdfyPm6gT9XMCg==}
@@ -526,12 +564,12 @@ packages:
       react: '>=16.8.0'
       starknet: '>=6.23.1'
 
-  '@chipi-stack/backend@11.2.0':
-    resolution: {integrity: sha512-Xm2t6+glGu2NFMtBMWOJu3ymT5QRUifnwBKtQJEN9EAjZpcQYq/+61AX+kzGQ1PH1AJIC8Q4bd3sHq1e7JJ/uQ==}
+  '@chipi-stack/backend@11.5.0':
+    resolution: {integrity: sha512-A2QGGISCsYf4suQq/4i7alO5LnH2LJteuuDPH/8bpB4XedV1cwwbkvMygSZFmzhGqZ84Jtcq4LssSvF1zX/9JA==}
     engines: {node: '>=18.17.0'}
 
-  '@chipi-stack/chipi-react@11.2.0':
-    resolution: {integrity: sha512-GtQACrbARZvjmWvrMpzINFkJs5weqEzCPATLis9kYAjboJgjKXk1r/bor6sTDKs9k6kl9ZJ7BRRkPXC2/CE5sQ==}
+  '@chipi-stack/chipi-react@11.5.0':
+    resolution: {integrity: sha512-877FHRIDbo936pBVkC7zCwnkgwCuNCcDCcww5f6T+iRZ+Hr+Wodd7mY+vO44kHw/WSL5Da7i3jxQy6LXzUo0nw==}
     engines: {node: '>=18.17.0'}
     peerDependencies:
       react: '>=16.8.0'
@@ -549,8 +587,12 @@ packages:
     resolution: {integrity: sha512-4ZjubFLVP1Z2xoZJNag2jPe+qTVcx+PJLb7nnIiS2Gu2UUyZkwmR6hK5gTGQ0eUlADnFv03GwLgyvlx1Dd5Z3g==}
     engines: {node: '>=18.17.0'}
 
-  '@chipi-stack/types@11.2.0':
-    resolution: {integrity: sha512-TWWxpBLHDU0DFIYlFjddzx/ZUSLCgTVKC6xTbPMvYD4JKfAvnqMNM+X7r4S1rZqKexu8xWpgtUIJnqZO1cC3lQ==}
+  '@chipi-stack/shared@11.5.0':
+    resolution: {integrity: sha512-n5wW6YK0WwrqT8EgSbEsf4pcUaZ4O9PxpoJyZcy64ZQRMyzznbKJz5P5QhgObImlHwdFmb8qIHsKUmpHRymXqQ==}
+    engines: {node: '>=18.17.0'}
+
+  '@chipi-stack/types@11.5.0':
+    resolution: {integrity: sha512-C0xFRE647klcuGSamzN3/sA81rleC/K0fceQTR2YF6JHIUvi9K2KFygh8Fe95tJidQn9oFRT5FpHIgfd2sGV4A==}
     engines: {node: '>=18.17.0'}
 
   '@clerk/backend@2.17.1':
@@ -1232,6 +1274,10 @@ packages:
     resolution: {integrity: sha512-j84kjAbzEnQHaSIhRPUmB3/eVXu2k3dKPl2LOrR8fSOIL+89U+7lV117EWHtq/GHM3ReGHM46iRBdZfpc4HRUQ==}
     engines: {node: ^14.21.3 || >=16}
 
+  '@noble/curves@1.8.2':
+    resolution: {integrity: sha512-vnI7V6lFNe0tLAuJMu+2sX+FcL14TaCWy1qiczg1VwRmPrpQCdq5ESXQMqUc2tluRNf6irBXrWbl1mGN8uaU/g==}
+    engines: {node: ^14.21.3 || >=16}
+
   '@noble/curves@1.9.1':
     resolution: {integrity: sha512-k11yZxZg+t+gWvBbIswW0yoJlu8cHOC7dhunwOzoWH/mXGBiYyR4YY6hAEK/3EUs4UpB8la1RfdRpeGsFHkWsA==}
     engines: {node: ^14.21.3 || >=16}
@@ -1266,6 +1312,10 @@ packages:
 
   '@noble/hashes@1.7.0':
     resolution: {integrity: sha512-HXydb0DgzTpDPwbVeDGCG1gIu7X6+AuU6Zl6av/E/KG8LMsvPntvq+w17CHRpKBmN6Ybdrt1eP3k4cj8DJa78w==}
+    engines: {node: ^14.21.3 || >=16}
+
+  '@noble/hashes@1.7.2':
+    resolution: {integrity: sha512-biZ0NUSxyjLLqo6KxEJ1b+C2NAx0wtDoFvCaXHGgUkeHzf3Xc1xKumFKREuT7f7DARNZ/slvYUwFG6B0f2b6hQ==}
     engines: {node: ^14.21.3 || >=16}
 
   '@noble/hashes@1.8.0':
@@ -2214,6 +2264,12 @@ packages:
   '@scure/bip39@1.6.0':
     resolution: {integrity: sha512-+lF0BbLiJNwVlev4eKelw1WWLaiKXw7sSl8T6FvBlWkdX+94aGJ4o8XjUdlyhTCjd8c+B3KT3JfS8P0bLRNU6A==}
 
+  '@scure/btc-signer@1.6.0':
+    resolution: {integrity: sha512-qd6ciJE4Onk1xdQEdjPvRbLRrH7EddPZagMuZOFv77R/76EWixENd6nuoxqHNEPGRbS09rgAhhPgT7j0oQdi1A==}
+
+  '@scure/btc-signer@1.8.1':
+    resolution: {integrity: sha512-8nX9T++dFyKpvqksNHfSi9CgRsGnHAQtCdIQ1y1GmbCGLpV97v4MUyemUUT6uDumKL3oo3m4niyY6A32nmdLuQ==}
+
   '@scure/starknet@1.0.0':
     resolution: {integrity: sha512-o5J57zY0f+2IL/mq8+AYJJ4Xpc1fOtDhr+mFQKbHnYFmm3WQrC+8zj2HEgxak1a+x86mhmBC1Kq305KUpVf0wg==}
 
@@ -2945,6 +3001,9 @@ packages:
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
+  bech32@1.1.4:
+    resolution: {integrity: sha512-s0IrSOzLlbvX7yp4WBfPITzpAU8sqQcpsmwXDiKwrG4r491vwCO/XpejasRNl0piBMe/DvP4Tz0mIS/X1DPJBQ==}
+
   big.js@6.2.2:
     resolution: {integrity: sha512-y/ie+Faknx7sZA5MfGA2xKlu0GDv8RWrXGsmlteyJQ2lvoKv9GBK/fpRMc2qlSoBAgNxrixICFCBefIq8WCQpQ==}
 
@@ -3415,6 +3474,11 @@ packages:
 
   electron-to-chromium@1.5.211:
     resolution: {integrity: sha512-IGBvimJkotaLzFnwIVgW9/UD/AOJ2tByUmeOrtqBfACSbAw5b1G0XpvdaieKyc7ULmbwXVx+4e4Be8pOPBrYkw==}
+
+  embla-carousel-autoplay@8.6.0:
+    resolution: {integrity: sha512-OBu5G3nwaSXkZCo1A6LTaFMZ8EpkYbwIaH+bPqdBnDGQ2fh4+NbzjXjs2SktoPNKCtflfVMc75njaDHOYXcrsA==}
+    peerDependencies:
+      embla-carousel: 8.6.0
 
   embla-carousel-react@8.6.0:
     resolution: {integrity: sha512-0/PjqU7geVmo6F734pmPqpyHqiM99olvyecY7zdweCw+6tKEXnrE90pBiBbMMU8s5tICemzpQ3hi5EpxzGW+JA==}
@@ -4296,6 +4360,9 @@ packages:
   lodash-es@4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
 
+  lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
+
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
 
@@ -4417,6 +4484,9 @@ packages:
 
   micro-ftch@0.3.1:
     resolution: {integrity: sha512-/0LLxhzP0tfiR5hcQebtudP56gUurs2CLkGarnCiB/OqEyUFQ6U3paQi/tgLv0hBJYt2rnr9MNpxz4fiiugstg==}
+
+  micro-packed@0.7.3:
+    resolution: {integrity: sha512-2Milxs+WNC00TRlem41oRswvw31146GiSaoCT7s3Xi2gMUglW5QBeqlQaZeHr5tJx9nm3i57LNXPqxOOaWtTYg==}
 
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
@@ -6116,6 +6186,48 @@ snapshots:
       url-join: 5.0.0
       zod: 3.25.76
 
+  '@atomiqlabs/base@11.0.0':
+    dependencies:
+      buffer: 6.0.3
+
+  '@atomiqlabs/bolt11@1.6.1(@noble/curves@1.9.7)(@noble/hashes@1.8.0)':
+    dependencies:
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/btc-signer': 1.8.1
+      bech32: 1.1.4
+      lodash.clonedeep: 4.5.0
+      safe-buffer: 5.2.1
+
+  '@atomiqlabs/chain-starknet@5.1.5(starknet@8.5.4)':
+    dependencies:
+      '@atomiqlabs/base': 11.0.0
+      '@noble/hashes': 1.8.0
+      '@scure/btc-signer': 1.6.0
+      abi-wan-kanabi: 2.2.4
+      buffer: 6.0.3
+      starknet: 8.5.4
+
+  '@atomiqlabs/sdk-lib@15.0.17(@noble/curves@1.9.7)':
+    dependencies:
+      '@atomiqlabs/base': 11.0.0
+      '@atomiqlabs/bolt11': 1.6.1(@noble/curves@1.9.7)(@noble/hashes@1.8.0)
+      '@noble/ciphers': 1.3.0
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.6
+      '@scure/btc-signer': 1.8.1
+      buffer: 6.0.3
+      events: 3.3.0
+    transitivePeerDependencies:
+      - '@noble/curves'
+
+  '@atomiqlabs/sdk@6.0.3(@noble/curves@1.9.7)':
+    dependencies:
+      '@atomiqlabs/base': 11.0.0
+      '@atomiqlabs/sdk-lib': 15.0.17(@noble/curves@1.9.7)
+    transitivePeerDependencies:
+      - '@noble/curves'
+
   '@avnu/gasless-sdk@0.1.8(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(starknet@6.11.0)':
     dependencies:
       ethers: 6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10)
@@ -6448,11 +6560,11 @@ snapshots:
       - qs
       - react-dom
 
-  '@chipi-stack/backend@11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)':
+  '@chipi-stack/backend@11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)':
     dependencies:
       '@avnu/gasless-sdk': 0.1.8(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(starknet@6.11.0)
-      '@chipi-stack/shared': 11.2.0
-      '@chipi-stack/types': 11.2.0
+      '@chipi-stack/shared': 11.5.0
+      '@chipi-stack/types': 11.5.0
       crypto-es: 2.1.0
       starknet: 6.11.0
     transitivePeerDependencies:
@@ -6460,11 +6572,11 @@ snapshots:
       - ethers
       - qs
 
-  '@chipi-stack/chipi-react@11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
+  '@chipi-stack/chipi-react@11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@chipi-stack/backend': 11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)
-      '@chipi-stack/shared': 11.2.0
-      '@chipi-stack/types': 11.2.0
+      '@chipi-stack/backend': 11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)
+      '@chipi-stack/shared': 11.5.0
+      '@chipi-stack/types': 11.5.0
       '@tanstack/react-query': 5.90.2(react@19.1.1)
       react: 19.1.1
       react-dom: 19.1.1(react@19.1.1)
@@ -6475,10 +6587,10 @@ snapshots:
 
   '@chipi-stack/nextjs@11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(next@15.5.2(@babel/core@7.28.4)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)':
     dependencies:
-      '@chipi-stack/backend': 11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)
-      '@chipi-stack/chipi-react': 11.2.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      '@chipi-stack/backend': 11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)
+      '@chipi-stack/chipi-react': 11.5.0(ethers@6.15.0(bufferutil@4.0.9)(utf-8-validate@5.0.10))(qs@6.14.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       '@chipi-stack/shared': 11.2.0
-      '@chipi-stack/types': 11.2.0
+      '@chipi-stack/types': 11.5.0
       '@tanstack/react-query': 5.90.2(react@19.1.1)
       next: 15.5.2(@babel/core@7.28.4)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       react: 19.1.1
@@ -6490,11 +6602,17 @@ snapshots:
 
   '@chipi-stack/shared@11.2.0':
     dependencies:
-      '@chipi-stack/types': 11.2.0
+      '@chipi-stack/types': 11.5.0
       starknet: 8.5.4
       zod: 4.1.11
 
-  '@chipi-stack/types@11.2.0':
+  '@chipi-stack/shared@11.5.0':
+    dependencies:
+      '@chipi-stack/types': 11.5.0
+      starknet: 8.5.4
+      zod: 4.1.11
+
+  '@chipi-stack/types@11.5.0':
     dependencies:
       starknet: 8.5.4
 
@@ -7195,6 +7313,10 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.7.0
 
+  '@noble/curves@1.8.2':
+    dependencies:
+      '@noble/hashes': 1.7.2
+
   '@noble/curves@1.9.1':
     dependencies:
       '@noble/hashes': 1.8.0
@@ -7220,6 +7342,8 @@ snapshots:
   '@noble/hashes@1.6.0': {}
 
   '@noble/hashes@1.7.0': {}
+
+  '@noble/hashes@1.7.2': {}
 
   '@noble/hashes@1.8.0': {}
 
@@ -8440,6 +8564,20 @@ snapshots:
     dependencies:
       '@noble/hashes': 1.8.0
       '@scure/base': 1.2.6
+
+  '@scure/btc-signer@1.6.0':
+    dependencies:
+      '@noble/curves': 1.8.2
+      '@noble/hashes': 1.7.2
+      '@scure/base': 1.2.6
+      micro-packed: 0.7.3
+
+  '@scure/btc-signer@1.8.1':
+    dependencies:
+      '@noble/curves': 1.9.7
+      '@noble/hashes': 1.8.0
+      '@scure/base': 1.2.6
+      micro-packed: 0.7.3
 
   '@scure/starknet@1.0.0':
     dependencies:
@@ -9723,6 +9861,8 @@ snapshots:
 
   base64-js@1.5.1: {}
 
+  bech32@1.1.4: {}
+
   big.js@6.2.2: {}
 
   binary-extensions@2.3.0: {}
@@ -10190,6 +10330,10 @@ snapshots:
   ee-first@1.1.1: {}
 
   electron-to-chromium@1.5.211: {}
+
+  embla-carousel-autoplay@8.6.0(embla-carousel@8.6.0):
+    dependencies:
+      embla-carousel: 8.6.0
 
   embla-carousel-react@8.6.0(react@19.1.1):
     dependencies:
@@ -11168,6 +11312,8 @@ snapshots:
 
   lodash-es@4.17.21: {}
 
+  lodash.clonedeep@4.5.0: {}
+
   lodash.merge@4.6.2: {}
 
   lodash.mergewith@4.6.2: {}
@@ -11390,6 +11536,10 @@ snapshots:
       - utf-8-validate
 
   micro-ftch@0.3.1: {}
+
+  micro-packed@0.7.3:
+    dependencies:
+      '@scure/base': 1.2.6
 
   micromatch@4.0.8:
     dependencies:

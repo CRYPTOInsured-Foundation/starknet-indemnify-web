@@ -10,6 +10,7 @@ import { ChipiProvider, useChipiContext, type ChipiSDKConfig } from '@chipi-pay/
 import { StoreProvider } from '@/stores/store-provider';
 import { StarknetProvider } from '@/providers/StarknetProvider';
 import ChipiClientProvider from '@/components/providers/ChipiClientProvider';
+import { useRootStore } from '@/stores/use-root-store';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -33,7 +34,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  
+
+   
   return (
     <html lang="en">
       <head>
@@ -45,17 +47,17 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
 
-              <ChipiClientProvider>
           <StoreProvider>
             <StarknetProvider>
+              <ChipiClientProvider>
                 <div className="min-h-screen flex flex-col">
                   <Header />
                   <main className="flex-1">{children}</main>
                   <Footer />
                 </div>
+              </ChipiClientProvider>
             </StarknetProvider>
           </StoreProvider>
-              </ChipiClientProvider>
       </body>
     </html>
   );

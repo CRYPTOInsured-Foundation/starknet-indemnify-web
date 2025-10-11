@@ -29,7 +29,7 @@ function DashboardContent() {
   const [selectedPolicy, setSelectedPolicy] = useState<string | null>(null);
 
   const PUB_KEY = process.env.NEXT_PUBLIC_CHIPI_PUBLIC_KEY!;
-  const ENC_KEY = process.env.NEXT_PUBLIC_CHIPI_SECRET_KEY;
+  const ENC_KEY = process.env.NEXT_PUBLIC_CHIPI_SECRET_KEY!;
 
   useEffect(() => {
     fetchPolicies();
@@ -39,8 +39,8 @@ function DashboardContent() {
 
   const result = useCreateWallet();
   const { createWallet, createWalletAsync } = useCreateWallet();
-console.log('FULL useCreateWallet result:', result);
-console.log('Type of createWalletAsync:', typeof result.createWalletAsync);
+// console.log('FULL useCreateWallet result:', result);
+// console.log('Type of createWalletAsync:', typeof result.createWalletAsync);
 
 // const handleCreateWallet = () => {
 //   createWallet({
@@ -53,14 +53,20 @@ console.log('Type of createWalletAsync:', typeof result.createWalletAsync);
 // Add error handling to see the exact error
 const handleCreateWallet = async () => {
   try {
-    await createWalletAsync({
+    let walletResult = createWalletAsync({
       encryptKey: PUB_KEY,
-      bearerToken: "my_bearer_token",
+      bearerToken: ENC_KEY,
     });
+
+    walletResult.then(wallet => {
+      console.log("Wallet Result: ", wallet)
+    }).catch(err => console.log("Error: ", err.message));
+
+    // console.log("Wallet Result: ", walletResult)
   } catch (error) {
     console.log('FULL ERROR:', error);
-    console.log('Error message:', error instanceof Error ? error.message);
-    console.log('Error stack:', error instanceof Error ? error.stack);
+    console.log('Error message:', error instanceof Error ? error.message : "Error occured");
+    console.log('Error stack:', error instanceof Error ? error.stack : "Error Occurred");
   }
 };
 

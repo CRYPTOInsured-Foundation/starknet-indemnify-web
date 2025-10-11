@@ -17,7 +17,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { ChipiProvider } from '@chipi-pay/chipi-sdk';
+import { ChipiProvider, ChipiSDKConfig } from '@chipi-pay/chipi-sdk';
 
 // Create context
 interface ChipiPayContextType {
@@ -174,19 +174,54 @@ export default function ChipiClientProvider({ children }: { children: React.Reac
     error,
   };
 
-  const chipiConfig = {
-    apiPublicKey: CHIPI_PUBLIC_KEY,
-    enableLogging: process.env.NODE_ENV === 'development',
+//   interface ChipiClientProviderProps {
+//     children: React.ReactNode;
+//     apiPublicKey: string;
+//     environment?: "development" | "production";
+// }
+
+  const BASE_URL = process.env.NEXT_PUBLIC_CHIPI_BASE_URL!;
+
+  // console.log(ChipiSDKConfig);
+
+  const chipiConfig: ChipiSDKConfig = {
+    apiPublicKey: CHIPI_PUBLIC_KEY, 
+    // environment: "development" | "production",
+    // nodeUrl: ""
+    // enableLogging: process.env.NODE_ENV === 'development',
+    // nodeUrl: "https://starknet-mainnet.public.blastapi.io",
+    // nodeUrl: BASE_URL,
+    // chainId: "SN_MAIN"
   };
 
   return (
     <ChipiProvider config={chipiConfig}>
-      <ChipiPayContext.Provider value={contextValue}>
+      {/* <ChipiPayContext.Provider value={contextValue}> */}
         {children}
-      </ChipiPayContext.Provider>
+      {/* </ChipiPayContext.Provider> */}
     </ChipiProvider>
   );
 }
+
+
+// // Mainnet RPCs
+// const mainnetRPCs = [
+//   "https://starknet-mainnet.public.blastapi.io",
+//   "https://free-rpc.nethermind.io/mainnet-juno",
+//   "https://rpc.starknet.lava.build"
+// ];
+
+// // Testnet RPCs  
+// const testnetRPCs = [
+//   "https://starknet-testnet.public.blastapi.io",
+//   "https://free-rpc.nethermind.io/goerli-juno",
+//   "https://rpc.starknet-testnet.lava.build"
+// ];
+
+
+
+
+
 // export default function ChipiClientProvider({ children }: { children: React.ReactNode }) {
 //   const chipiConfig = {
 //     apiPublicKey: CHIPI_PUBLIC_KEY,
