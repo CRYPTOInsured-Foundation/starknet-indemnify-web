@@ -376,7 +376,7 @@ export const createAuthSlice: StateCreator<AuthStore> = (set, get) => ({
       localStorage.setItem("auth-user", JSON.stringify({ data: user }));
       set({ user, isAuthenticated: true, loading: false, error: null });
 
-      window.location.href = "/dashboard";
+      // window.location.href = "/dashboard";
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "OAuth login failed";

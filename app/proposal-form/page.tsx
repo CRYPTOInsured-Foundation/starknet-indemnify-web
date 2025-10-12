@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRootStore } from "@/stores/use-root-store";
-import { PolicyClass, PremiumFrequency } from "@/lib/utils";
+import { 
+  PolicyClass, 
+  PremiumFrequency, 
+  convertPolicyClassToCode, 
+  convertPremiumFrequencyToCode, 
+  StarknetEvent,
+  stringToHex
+ } from "@/lib/utils";
 import {
   Card,
   CardHeader,
@@ -31,6 +38,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
+
+import { 
+  CallData, 
+  hash, 
+  InvokeFunctionResponse, 
+  AccountInterface, 
+  GetTransactionReceiptResponse,
+  ProviderInterface,
+  uint256,
+ 
+} from "starknet";
+
+
 export default function NewProposalPage() {
   const router = useRouter();
 
@@ -38,16 +58,18 @@ export default function NewProposalPage() {
     insuranceProducts,
     fetchProducts,
     createProposal,
-    updateProposal,
     fetchProposalsByUser,
     proposals,
     isLoadingProposal,
     user,
+    executeTransaction,
+    account,
+    address,
+    provider,
+    restoreConnection
   } = useRootStore();
 
   const [form, setForm] = useState({
-    id: null,
-    proposer: user,
     policyClass: "",
     subjectMatter: "",
     sumInsured: "",
@@ -56,9 +78,15 @@ export default function NewProposalPage() {
   });
 
   const [calculatedPremium, setCalculatedPremium] = useState<number | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+
+  useEffect(() => {
+    restoreConnection();
+  }, [restoreConnection]);
+
 
   // Fetch products and user proposals
   useEffect(() => {
@@ -86,23 +114,133 @@ export default function NewProposalPage() {
       setCalculatedPremium(null);
     }
   }, [form.sumInsured, form.policyClass, insuranceProducts]);
+  
 
-  // 🔹 Submit or update proposal
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
 
-    if (
-      !form.policyClass ||
-      !form.sumInsured ||
-      !form.premiumFrequency ||
-      !calculatedPremium
-    ) {
-      toast.error("Please fill all required fields");
-      return;
-    }
+// const handleSubmit = async (e: React.FormEvent) => {
+//   e.preventDefault();
 
+//   if (!form.policyClass || !form.sumInsured || !form.premiumFrequency || !calculatedPremium) {
+//     toast.error("Please fill all required fields");
+//     return;
+//   }
+
+//   setIsSubmitting(true);
+
+//   try {
+//     const policyClassCode = convertPolicyClassToCode(form.policyClass as PolicyClass);
+//     const premiumFrequencyCode = convertPremiumFrequencyToCode(form.premiumFrequency as PremiumFrequency);
+
+//   const calldata = CallData.compile({
+//     proposer: address as string,
+//     policy_class_code: policyClassCode,
+//     subject_matter: stringToHex(form.subjectMatter.slice(0, 31)), // ✅ works safely
+//     sum_insured: uint256.bnToUint256(BigInt(form.sumInsured)),
+//     premium_frequency_code: premiumFrequencyCode,
+//     frequency_factor: Number(form.frequencyFactor),
+//   });
+
+
+//     let contractAddress = process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!;
+
+//     console.log("Proposal Contract Address: ", contractAddress);
+
+//     const call = {
+//       contractAddress: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
+//       entrypoint: 'submit_proposal',
+//       calldata: calldata,
+//     };
+
+  
+
+//     // 🔹 Execute transaction on-chain
+//     const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+
+//     // 🔹 Wait for confirmation
+//     await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+
+//     // 🔹 Fetch receipt and read ProposalSubmitted event
+//     const receipt: GetTransactionReceiptResponse =
+//       await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+
+//     let events: any[] = []
+
+
+//     if ("events" in receipt) {
+//       const pseudoEvents = receipt.events as StarknetEvent[];
+
+//       // 5. Compute selector for CollectionCreated
+//       const proposalCreatedSelector = hash.getSelectorFromName("ProposalCreated");
+
+//       // 6. Find event
+//       const event = pseudoEvents.find(
+//         (e) => e.keys[0].toLowerCase() === proposalCreatedSelector.toLowerCase()
+//       );
+
+//       if (!event) throw new Error("ProposalCreated event not found");
+
+//       // 7. Decode event (from ABI we know [creator, collection])
+//       const proposalId = event.data[0];
+//       const proposer = event.data[1];
+
+//       events = [proposalId, proposer];
+//     }
+
+//     if (!events) throw new Error("ProposalSubmitted event not found on-chain");
+
+//     const onChainProposalId = events[0]; // Assuming the contract emits proposalId first
+
+//     toast.success("Proposal submitted on-chain successfully!");
+
+//     // 🔹 Step 2: Submit proposal off-chain
+//     const payload = {
+//       proposalId: onChainProposalId,
+//       proposer: address,
+//       policyClass: form.policyClass,
+//       subjectMatter: form.subjectMatter,
+//       sumInsured: form.sumInsured,
+//       premiumPayable: calculatedPremium.toString(),
+//       premiumFrequency: form.premiumFrequency,
+//       frequencyFactor: form.frequencyFactor,
+//       submissionDate: new Date().toISOString(),
+//     };
+
+//     const resultOffChain = await createProposal(payload);
+
+//     if (resultOffChain.success) {
+//       toast.success("Proposal recorded off-chain successfully!");
+//       fetchProposalsByUser(user?.id as string);
+//       resetForm();
+//     } else {
+//       toast.error("Failed to submit proposal off-chain");
+//     }
+//   } catch (err: any) {
+//     toast.error(err?.message || "Failed to submit proposal");
+//   } finally {
+//     setIsSubmitting(false);
+//   }
+// };
+
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (!form.policyClass || !form.sumInsured || !form.premiumFrequency || !calculatedPremium) {
+    toast.error("Please fill all required fields");
+    return;
+  }
+
+  setIsSubmitting(true);
+
+  try {
+    // Simulate proposalId since no on-chain event exists
+    // const fakeProposalId = `0x${Math.floor(Math.random() * 1e16).toString(16)}`;
+    const fakeProposalId = 1;
+
+
+    // Prepare off-chain payload
     const payload = {
-      proposalId: "100",
+      proposalId: fakeProposalId.toString(), // ⚙️ placeholder ID
       proposer: user,
       policyClass: form.policyClass,
       subjectMatter: form.subjectMatter,
@@ -111,49 +249,34 @@ export default function NewProposalPage() {
       premiumFrequency: form.premiumFrequency,
       frequencyFactor: form.frequencyFactor,
       submissionDate: new Date().toISOString(),
-      lastUpdated: new Date().toISOString(),
+      // ✅ Automatically approved (mirrors your backend logic)
+      riskAnalyticsApproved: true,
+      governanceApproved: true,
+      proposalStatus: "APPROVED",
     };
 
-    let result;
-    if (isEditing && form.id) {
-      result = await updateProposal(form.id, payload);
-    } else {
-      result = await createProposal(payload);
-    }
+    const resultOffChain = await createProposal(payload);
 
-    if (result.success) {
-      toast.success(
-        isEditing
-          ? "Proposal updated successfully!"
-          : "Proposal submitted successfully!"
-      );
+    if (resultOffChain.success) {
+      toast.success("✅ Proposal recorded off-chain successfully!");
       fetchProposalsByUser(user?.id as string);
       resetForm();
     } else {
-      toast.error("Failed to submit proposal");
+      toast.error("❌ Failed to submit proposal off-chain");
     }
-  };
+  } catch (err: any) {
+    console.error("Proposal error:", err);
+    toast.error(err?.message || "Failed to submit proposal");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
-  // 🔹 Fill form with proposal data for editing
-  const handleEdit = (proposal: any) => {
-    setForm({
-      id: proposal.id,
-      proposer: user,
-      policyClass: proposal.policyClass,
-      subjectMatter: proposal.subjectMatter,
-      sumInsured: proposal.sumInsured,
-      premiumFrequency: proposal.premiumFrequency,
-      frequencyFactor: proposal.frequencyFactor,
-    });
-    setCalculatedPremium(Number(proposal.premiumPayable));
-    setIsEditing(true);
-  };
 
-  // 🔹 Reset form after submission or cancel
+  
+
   const resetForm = () => {
     setForm({
-      ...form,
-      id: null,
       policyClass: "",
       subjectMatter: "",
       sumInsured: "",
@@ -161,18 +284,15 @@ export default function NewProposalPage() {
       frequencyFactor: 1,
     });
     setCalculatedPremium(null);
-    setIsEditing(false);
   };
 
-
-const paginatedProposals = proposals
-  ?.slice()
-  .sort(
-    (a: any, b: any) =>
-      new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime()
-  )
-  .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
+  const paginatedProposals = proposals
+    ?.slice()
+    .sort(
+      (a: any, b: any) =>
+        new Date(b.submissionDate).getTime() - new Date(a.submissionDate).getTime()
+    )
+    .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const totalPages = Math.ceil(proposals.length / itemsPerPage);
 
@@ -182,7 +302,7 @@ const paginatedProposals = proposals
       <Card className="shadow-md border border-gray-200">
         <CardHeader>
           <CardTitle className="text-2xl font-bold text-gray-800">
-            {isEditing ? "Edit Proposal" : "Submit New Insurance Proposal"}
+            Submit New Insurance Proposal
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -280,28 +400,11 @@ const paginatedProposals = proposals
               />
             </div>
 
-            {/* Submit/Update Button */}
+            {/* Submit Button */}
             <div className="flex gap-3">
-              <Button type="submit" className="w-full" disabled={isLoadingProposal}>
-                {isLoadingProposal
-                  ? isEditing
-                    ? "Updating..."
-                    : "Submitting..."
-                  : isEditing
-                  ? "Update Proposal"
-                  : "Submit Proposal"}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Submitting..." : "Submit Proposal"}
               </Button>
-
-              {isEditing && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={resetForm}
-                  className="w-1/3"
-                >
-                  Cancel
-                </Button>
-              )}
             </div>
           </form>
         </CardContent>
@@ -310,9 +413,7 @@ const paginatedProposals = proposals
       {/* --- User Proposals Table --- */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl font-semibold">
-            My Proposals
-          </CardTitle>
+          <CardTitle className="text-xl font-semibold">My Proposals</CardTitle>
         </CardHeader>
         <CardContent>
           {proposals.length === 0 ? (
@@ -332,50 +433,38 @@ const paginatedProposals = proposals
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
-
                 <TableBody>
-                {paginatedProposals.map((proposal) => (
+                  {paginatedProposals.map((proposal) => (
                     <TableRow key={proposal.id}>
-                    <TableCell>{proposal.policyClass}</TableCell>
-                    <TableCell>${proposal.sumInsured}</TableCell>
-                    <TableCell>${proposal.premiumPayable}</TableCell>
-                    <TableCell>{proposal.premiumFrequency}</TableCell>
-                    <TableCell>{proposal.proposalStatus || "Pending"}</TableCell>
-                    {/* <TableCell className="flex gap-2">
+                      <TableCell>{proposal.policyClass}</TableCell>
+                      <TableCell>${proposal.sumInsured}</TableCell>
+                      <TableCell>${proposal.premiumPayable}</TableCell>
+                      <TableCell>{proposal.premiumFrequency}</TableCell>
+                      <TableCell>{proposal.proposalStatus || "Pending"}</TableCell>
+                      <TableCell className="flex gap-2">
                         <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => router.push(`/proposal-detail/${proposal.id}`)} // ✅ Updated route
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            router.push(`/proposal-detail/${proposal.id}`)
+                          }
                         >
-                        View
+                          View
                         </Button>
-                        <Button size="sm" onClick={() => handleEdit(proposal)}>
-                        Edit
-                        </Button>
-                    </TableCell> */}
-                    <TableCell className="flex gap-2">
                         <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => router.push(`/proposal-detail/${proposal.id}`)}
+                          size="sm"
+                          variant="secondary"
+                          onClick={() =>
+                            router.push(
+                              `/inspection-form?proposalId=${proposal.id}`
+                            )
+                          }
                         >
-                            View
+                          Inspect
                         </Button>
-
-                        <Button size="sm" onClick={() => handleEdit(proposal)}>
-                            Edit
-                        </Button>
-
-                        <Button
-                            size="sm"
-                            variant="secondary"
-                            onClick={() => router.push(`/inspection-form?proposalId=${proposal.id}`)}
-                        >
-                            Inspect
-                        </Button>
-                    </TableCell>
+                      </TableCell>
                     </TableRow>
-                ))}
+                  ))}
                 </TableBody>
               </Table>
 
@@ -412,4 +501,3 @@ const paginatedProposals = proposals
     </div>
   );
 }
-

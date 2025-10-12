@@ -33,9 +33,9 @@ const Header = () => {
   console.log("User is Authenticated: ", isAuthenticated);
   console.log("User: ", user);
 
-  useEffect(() => {
-    if(isAuthenticated) setLoading(false);
-  }, []);
+  // useEffect(() => {
+  //   if(isAuthenticated) setLoading(false);
+  // }, []);
 
 
 

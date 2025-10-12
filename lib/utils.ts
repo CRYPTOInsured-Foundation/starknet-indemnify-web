@@ -303,4 +303,14 @@ export interface InsuranceProduct {
       default: return PremiumFrequency.INVALID;
     }
   }
+
+
+  export interface StarknetEvent {
+    keys: string[];
+    data: string[];
+  }
+
+ export function stringToHex(str: string): string {
+    return "0x" + Buffer.from(str, "utf8").toString("hex");
+  }
   

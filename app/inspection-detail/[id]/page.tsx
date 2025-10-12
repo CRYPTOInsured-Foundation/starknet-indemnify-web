@@ -34,18 +34,79 @@ export async function generateStaticParams() {
   }
 }
 
-// ✅ Metadata generation for SEO and clarity
-export async function generateMetadata({ params }: { params: { id: string } }) {
+// ✅ Metadata generation for SEO and clarity - FIXED for Next.js 15
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  // Await the params promise
+  const { id } = await params;
+  
   return {
-    title: `Inspection Details | ${params.id}`,
-    description: `Detailed inspection record for ID ${params.id}`,
+    title: `Inspection Details | ${id}`,
+    description: `Detailed inspection record for ID ${id}`,
   };
 }
 
 // ✅ Default export - purely client-rendered component
-export default function Page() {
+export default function Page({ params }: { params: Promise<{ id: string }> }) {
   return <InspectionDetailPage />;
 }
+
+
+
+
+
+
+
+
+
+
+// import InspectionDetailPage from "./InspectionDetailPage";
+
+// // ✅ This runs **at build time** to generate static pages for each inspection
+// export async function generateStaticParams() {
+//   try {
+//     const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/inspections`, {
+//       // Ensure Next.js fetches at build time
+//       cache: 'force-cache',
+//     });
+
+//     if (!res.ok) {
+//       console.error("❌ Failed to fetch inspections for static generation");
+//       return [];
+//     }
+
+//     const json = await res.json();
+
+//     // Normalize data structure based on your backend response
+//     const inspections = json?.data?.data || json?.data || json || [];
+
+//     // Return all available inspection IDs
+//     const params = inspections
+//       .filter((insp: any) => insp?.id)
+//       .map((insp: any) => ({
+//         id: insp.id.toString(),
+//       }));
+
+//     console.log("✅ Static Params Generated:", params);
+
+//     return params;
+//   } catch (error) {
+//     console.error("❌ Error in generateStaticParams:", error);
+//     return [];
+//   }
+// }
+
+// // ✅ Metadata generation for SEO and clarity
+// export async function generateMetadata({ params }: { params: { id: string } }) {
+//   return {
+//     title: `Inspection Details | ${params.id}`,
+//     description: `Detailed inspection record for ID ${params.id}`,
+//   };
+// }
+
+// // ✅ Default export - purely client-rendered component
+// export default function Page() {
+//   return <InspectionDetailPage />;
+// }
 
 
 
