@@ -294,6 +294,27 @@ export default function PaymentPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="claims">
+          <Card>
+             <CardHeader>
+               <CardTitle>Your Claim Settlements</CardTitle>
+             </CardHeader>
+             <CardContent>
+               {claimSettlements.length === 0 ? (
+                <p>No settlements found.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {claimSettlements.map((s) => (
+                    <li key={s.id} className="border p-2 rounded">
+                      Claim: {s.claim?.id} — ₦{s.approvedSettlementAmount} ({s.settlementStatus})
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* 🪙 Token Purchases */}
         <TabsContent value="purchase">
           <Card>
