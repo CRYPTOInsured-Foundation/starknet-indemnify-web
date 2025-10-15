@@ -6,6 +6,9 @@ import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import FeatureCard from '@/components/ui/feature-card';
+import { useRouter } from "next/navigation";
+import { useRootStore } from '@/stores/use-root-store';
+
 import { 
   Shield, 
   TrendingUp, 
@@ -30,31 +33,13 @@ const textColors = ["#FFFFFF", "#5541D7", "#11142D"];
 const paragraphColors = ["#9CA3AF", "#FFFFFF", "#000000"];
 
 
-  
-  // return (
-  //   <div className="w-full">
-  //     {heroSection}
-  //     {/* Rest of your page sections */}
-  //   </div>
-  // );
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 export default function Home() {
+
+  const router = useRouter();
+
+  const { isAuthenticated } = useRootStore();
+
+
   const features = [
     {
       icon: Shield,
@@ -64,7 +49,7 @@ export default function Home() {
     {
       icon: Zap,
       title: 'Instant Claims',
-      description: 'Fast claim processing with automated smart contract execution on StarkNet L2.',
+      description: 'Fast claim processing with automated smart contract execution on Starknet L2.',
     },
     {
       icon: Lock,
@@ -106,6 +91,16 @@ export default function Home() {
     transition: 'background-image 1s ease-in-out',   
   };
 
+  const handleGetCoverage = () => {
+    if (!isAuthenticated) router.push("/auth/login");
+    else router.push("/products");
+  }
+
+  const handleGetYourQuote = () => {
+    if (!isAuthenticated) router.push("/auth/login");
+    else router.push("/proposal-form");
+  }
+
   // Hero section with dynamic background and text colors
   const heroSection = (
     <section 
@@ -135,11 +130,11 @@ export default function Home() {
             
             {/* Rest of your hero section content */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => handleGetCoverage()} size="lg" className="bg-blue-600 hover:bg-blue-700">
                 Get Coverage Now
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button onClick={() => router.push("/about")} size="lg" variant="outline">
                 Learn More
               </Button>
             </div>
@@ -159,30 +154,6 @@ export default function Home() {
               </div>
             </div>
           </div>
-           {/* <div className="relative">
-              <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-lg mx-auto">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Policy Dashboard</h3>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm">Total Coverage</span>
-                      <span className="font-semibold text-blue-600">$75,000</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm">Active Policies</span>
-                      <span className="font-semibold">3</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                      <span className="text-sm">Claim Status</span>
-                      <span className="font-semibold text-green-600">Protected</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> */}
         </div>
       </div>
     </section>
@@ -193,72 +164,6 @@ export default function Home() {
     <div className="w-full">
       {/* Hero Section */}
       {heroSection}
-
-      {/* <section style={{border: "solid red 1px"}} className="relative bg-gradient-to-br from-blue-50 to-indigo-100 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-indigo-600/10"></div>
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  StarkInsure
-                  <span className="block text-blue-600">Makes You Secure</span>
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed">
-                  Protect your digital assets with comprehensive on-chain insurance solutions. 
-                  Built on StarkNet for lightning-fast claims and minimal fees.
-                </p>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="bg-blue-600 hover:bg-blue-700">
-                  Get Coverage Now
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-                <Button size="lg" variant="outline">
-                  Learn More
-                </Button>
-              </div>
-
-              <div className="flex items-center space-x-6 pt-4">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Little KYC Requirement</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-sm text-gray-600">Instant Payouts</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative">
-              <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-lg mx-auto">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Policy Dashboard</h3>
-                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  </div>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm">Total Coverage</span>
-                      <span className="font-semibold text-blue-600">$75,000</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                      <span className="text-sm">Active Policies</span>
-                      <span className="font-semibold">3</span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                      <span className="text-sm">Claim Status</span>
-                      <span className="font-semibold text-green-600">Protected</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div> 
-          </div>
-        </div>
-      </section> */}
 
       {/* Stats Section */}
       <section className="py-16 bg-white">
@@ -390,10 +295,10 @@ export default function Home() {
             Get started with comprehensive coverage today.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
+            <Button onClick={() => handleGetYourQuote()} size="lg" variant="secondary" className="bg-white text-blue-600 hover:bg-gray-100">
               Get Your Quote
             </Button>
-            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600">
+            <Button size="lg" variant="outline" className="border-white text-black hover:bg-white hover:text-blue-600">
               Connect Wallet
             </Button>
           </div>

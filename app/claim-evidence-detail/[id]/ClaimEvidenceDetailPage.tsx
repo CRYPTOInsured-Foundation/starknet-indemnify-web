@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 import {
   ArrowLeft,
   Image as ImageIcon,
@@ -94,6 +95,7 @@ export default function ClaimEvidenceDetailPage() {
   const { proofUrls, policyId, submissionDate, createdAt, claim } = selectedEvidence;
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
@@ -179,5 +181,21 @@ export default function ClaimEvidenceDetailPage() {
         </div>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
+
+
+
+// export default function ClaimEvidenceDetail() {
+//   const { restoreConnection } = useRootStore();
+//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
+
+
+
+//   return (
+//     <ProtectedRoute>
+//       <ClaimEvidenceDetailPage />
+//     </ProtectedRoute>
+//   );
+// }

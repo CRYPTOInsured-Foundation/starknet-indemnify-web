@@ -1,4 +1,4 @@
-import InspectionDetailPage from "./InspectionDetailPage";
+import  InspectionDetailPage from "./InspectionDetailPage";
 
 // ✅ This runs **at build time** to generate static pages for each inspection
 export async function generateStaticParams() {

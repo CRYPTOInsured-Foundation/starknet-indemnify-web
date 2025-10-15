@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 import {
   Table,
   TableHeader,
@@ -107,6 +108,7 @@ export default function ClaimEvidenceFormPage() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="max-w-5xl mx-auto py-10 px-6 space-y-10">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
@@ -231,5 +233,21 @@ export default function ClaimEvidenceFormPage() {
         </CardContent>
       </Card>
     </div>
+    </ProtectedRoute>
   );
 }
+
+
+
+// export default function ClaimEvidenceForm() {
+//   const { restoreConnection } = useRootStore();
+//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
+
+
+
+//   return (
+//     <ProtectedRoute>
+//       <ClaimEvidenceFormPage />
+//     </ProtectedRoute>
+//   );
+// }

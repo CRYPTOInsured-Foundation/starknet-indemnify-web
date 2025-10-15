@@ -37,6 +37,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
 
 import { 
@@ -50,8 +51,10 @@ import {
  
 } from "starknet";
 
+import proposalAbi from "../../contract_abis/proposal_contract.json" assert { type: "json" }; 
 
-export default function NewProposalPage() {
+
+export default function ProposalPage() {
   const router = useRouter();
 
   const {
@@ -66,7 +69,8 @@ export default function NewProposalPage() {
     account,
     address,
     provider,
-    restoreConnection
+    restoreConnection,
+    connectWallet,
   } = useRootStore();
 
   const [form, setForm] = useState({
@@ -83,9 +87,7 @@ export default function NewProposalPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
 
-  useEffect(() => {
-    restoreConnection();
-  }, [restoreConnection]);
+ 
 
 
   // Fetch products and user proposals
@@ -114,116 +116,18 @@ export default function NewProposalPage() {
       setCalculatedPremium(null);
     }
   }, [form.sumInsured, form.policyClass, insuranceProducts]);
+
+
+  useEffect(() => {
+    connectWallet();
+  }, [connectWallet]);
   
-
-
-// const handleSubmit = async (e: React.FormEvent) => {
-//   e.preventDefault();
-
-//   if (!form.policyClass || !form.sumInsured || !form.premiumFrequency || !calculatedPremium) {
-//     toast.error("Please fill all required fields");
-//     return;
-//   }
-
-//   setIsSubmitting(true);
-
-//   try {
-//     const policyClassCode = convertPolicyClassToCode(form.policyClass as PolicyClass);
-//     const premiumFrequencyCode = convertPremiumFrequencyToCode(form.premiumFrequency as PremiumFrequency);
-
-//   const calldata = CallData.compile({
-//     proposer: address as string,
-//     policy_class_code: policyClassCode,
-//     subject_matter: stringToHex(form.subjectMatter.slice(0, 31)), // ✅ works safely
-//     sum_insured: uint256.bnToUint256(BigInt(form.sumInsured)),
-//     premium_frequency_code: premiumFrequencyCode,
-//     frequency_factor: Number(form.frequencyFactor),
-//   });
-
-
-//     let contractAddress = process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!;
-
-//     console.log("Proposal Contract Address: ", contractAddress);
-
-//     const call = {
-//       contractAddress: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
-//       entrypoint: 'submit_proposal',
-//       calldata: calldata,
-//     };
-
-  
-
-//     // 🔹 Execute transaction on-chain
-//     const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
-
-//     // 🔹 Wait for confirmation
-//     await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
-
-//     // 🔹 Fetch receipt and read ProposalSubmitted event
-//     const receipt: GetTransactionReceiptResponse =
-//       await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
-
-//     let events: any[] = []
-
-
-//     if ("events" in receipt) {
-//       const pseudoEvents = receipt.events as StarknetEvent[];
-
-//       // 5. Compute selector for CollectionCreated
-//       const proposalCreatedSelector = hash.getSelectorFromName("ProposalCreated");
-
-//       // 6. Find event
-//       const event = pseudoEvents.find(
-//         (e) => e.keys[0].toLowerCase() === proposalCreatedSelector.toLowerCase()
-//       );
-
-//       if (!event) throw new Error("ProposalCreated event not found");
-
-//       // 7. Decode event (from ABI we know [creator, collection])
-//       const proposalId = event.data[0];
-//       const proposer = event.data[1];
-
-//       events = [proposalId, proposer];
-//     }
-
-//     if (!events) throw new Error("ProposalSubmitted event not found on-chain");
-
-//     const onChainProposalId = events[0]; // Assuming the contract emits proposalId first
-
-//     toast.success("Proposal submitted on-chain successfully!");
-
-//     // 🔹 Step 2: Submit proposal off-chain
-//     const payload = {
-//       proposalId: onChainProposalId,
-//       proposer: address,
-//       policyClass: form.policyClass,
-//       subjectMatter: form.subjectMatter,
-//       sumInsured: form.sumInsured,
-//       premiumPayable: calculatedPremium.toString(),
-//       premiumFrequency: form.premiumFrequency,
-//       frequencyFactor: form.frequencyFactor,
-//       submissionDate: new Date().toISOString(),
-//     };
-
-//     const resultOffChain = await createProposal(payload);
-
-//     if (resultOffChain.success) {
-//       toast.success("Proposal recorded off-chain successfully!");
-//       fetchProposalsByUser(user?.id as string);
-//       resetForm();
-//     } else {
-//       toast.error("Failed to submit proposal off-chain");
-//     }
-//   } catch (err: any) {
-//     toast.error(err?.message || "Failed to submit proposal");
-//   } finally {
-//     setIsSubmitting(false);
-//   }
-// };
 
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
+
+  console.log("Form data: ", form)
 
   if (!form.policyClass || !form.sumInsured || !form.premiumFrequency || !calculatedPremium) {
     toast.error("Please fill all required fields");
@@ -233,14 +137,125 @@ const handleSubmit = async (e: React.FormEvent) => {
   setIsSubmitting(true);
 
   try {
-    // Simulate proposalId since no on-chain event exists
-    // const fakeProposalId = `0x${Math.floor(Math.random() * 1e16).toString(16)}`;
-    const fakeProposalId = 1;
+    const policyClassCode = convertPolicyClassToCode(form.policyClass as PolicyClass);
+    const premiumFrequencyCode = convertPremiumFrequencyToCode(form.premiumFrequency as PremiumFrequency);
+
+  if (!address) {
+    throw new Error("Wallet not connected — proposer address is null");
+  }
+
+// const subjectBytes = new TextEncoder().encode(form.subjectMatter.slice(0, 31)); // converts to Uint8Array
+const calldata = new CallData(proposalAbi).compile("submit_proposal", {
+  proposer: address,
+  policy_class_code: BigInt(policyClassCode),
+  subject_matter: new TextEncoder().encode(form.subjectMatter.slice(0, 31)),
+  sum_insured: uint256.bnToUint256(BigInt(form.sumInsured)),
+  premium_frequency_code: BigInt(premiumFrequencyCode),
+  frequency_factor: BigInt(form.frequencyFactor)
+});
 
 
-    // Prepare off-chain payload
+console.log("Compiled calldata:", calldata);
+
+
+
+    let contractAddress = process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!;
+
+    console.log("Proposal Contract Address: ", contractAddress);
+
+    const call = {
+      contractAddress: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
+      entrypoint: 'submit_proposal',
+      calldata: calldata
+    };
+
+
+    let events: any[] = []
+
+    try {
+      // 🔹 Execute transaction on-chain
+    const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+
+    // 🔹 Wait for confirmation
+   let pseudoReceipt = await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+
+   const status =
+  (pseudoReceipt as any).execution_status ||
+  (pseudoReceipt as any).status ||
+  (pseudoReceipt as any).finality_status;
+
+const revertReason =
+  (pseudoReceipt as any).revert_reason ||
+  (pseudoReceipt as any).revert_error ||
+  (pseudoReceipt as any).reason;
+
+console.log("Execution status:", status);
+console.log("Revert reason:", revertReason);
+    // 🔹 Fetch receipt and read ProposalSubmitted event
+    const receipt: GetTransactionReceiptResponse =
+      await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+
+//       const selector = hash.getSelectorFromName("ProposalCreated");
+
+//       const { events } = await (provider as ProviderInterface).getEvents({
+//         address: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
+//         from_block: { block_number: 0 },
+//         to_block: "latest",
+//         keys: [[selector]],
+//         chunk_size: 100, // ✅ required field
+//       });
+
+
+
+// for (const ev of events) {
+//   const decoded = new CallData(proposalAbi).decodeEvent("ProposalCreated", ev.data);
+//   const subject = new TextDecoder().decode(decoded.subject_matter);
+//   console.log({
+//     proposer: decoded.proposer,
+//     policy_class_code: decoded.policy_class_code,
+//     subject,
+//     sum_insured: decoded.sum_insured,
+//     premium_frequency_code: decoded.premium_frequency_code,
+//     frequency_factor: decoded.frequency_factor,
+//   });
+// }
+
+
+    if ("events" in receipt) {
+      const pseudoEvents = receipt.events as StarknetEvent[];
+
+      // 5. Compute selector for CollectionCreated
+      const proposalCreatedSelector = hash.getSelectorFromName("ProposalCreated");   
+
+      // 6. Find event
+      const event = pseudoEvents.find(
+        (e) => e.keys[0].toLowerCase() === proposalCreatedSelector.toLowerCase()
+      );
+
+      if (!event) throw new Error("ProposalCreated event not found");
+
+      // 7. Decode event (from ABI we know [creator, collection])
+      const proposalId = event.data[0];
+      const proposer = event.data[1];
+
+      events = [proposalId, proposer];
+    }
+
+
+    } catch (err) {
+      console.log("Error: ", err instanceof Error ? err.message : "Contract call failed");
+    }
+
+    
+    if (!events) throw new Error("ProposalSubmitted event not found on-chain");
+
+    const onChainProposalId = events[0]; // Assuming the contract emits proposalId first
+
+    toast.success("Proposal submitted on-chain successfully!");
+
+    // 🔹 Step 2: Submit proposal off-chain
     const payload = {
-      proposalId: fakeProposalId.toString(), // ⚙️ placeholder ID
+      proposalId: onChainProposalId,
       proposer: user,
       policyClass: form.policyClass,
       subjectMatter: form.subjectMatter,
@@ -249,31 +264,24 @@ const handleSubmit = async (e: React.FormEvent) => {
       premiumFrequency: form.premiumFrequency,
       frequencyFactor: form.frequencyFactor,
       submissionDate: new Date().toISOString(),
-      // ✅ Automatically approved (mirrors your backend logic)
-      riskAnalyticsApproved: true,
-      governanceApproved: true,
-      proposalStatus: "APPROVED",
     };
 
     const resultOffChain = await createProposal(payload);
 
     if (resultOffChain.success) {
-      toast.success("✅ Proposal recorded off-chain successfully!");
+      toast.success("Proposal recorded off-chain successfully!");
       fetchProposalsByUser(user?.id as string);
       resetForm();
     } else {
-      toast.error("❌ Failed to submit proposal off-chain");
+      toast.error("Failed to submit proposal off-chain");
     }
   } catch (err: any) {
-    console.error("Proposal error:", err);
     toast.error(err?.message || "Failed to submit proposal");
   } finally {
     setIsSubmitting(false);
   }
 };
 
-
-  
 
   const resetForm = () => {
     setForm({
@@ -297,6 +305,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   const totalPages = Math.ceil(proposals.length / itemsPerPage);
 
   return (
+    <ProtectedRoute>
     <div className="max-w-6xl mx-auto py-12 px-6 space-y-10">
       {/* --- Proposal Form --- */}
       <Card className="shadow-md border border-gray-200">
@@ -499,5 +508,21 @@ const handleSubmit = async (e: React.FormEvent) => {
         </CardContent>
       </Card>
     </div>
+    </ProtectedRoute>
   );
 }
+
+
+
+// export default function Proposal() {
+//   const { restoreConnection } = useRootStore();
+//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
+
+
+
+//   return (
+//     <ProtectedRoute>
+//       <ProposalPage />
+//     </ProtectedRoute>
+//   );
+// }

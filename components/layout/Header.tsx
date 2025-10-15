@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 // import { useWalletStore } from '@/stores/wallet';
@@ -14,6 +14,8 @@ import { cn } from '@/lib/utils';
 
 const Header = () => {
   const pathname = usePathname();
+  const router = useRouter();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { 
     isConnected, 
@@ -28,15 +30,9 @@ const Header = () => {
     setLoading
 
   } = useRootStore();
-  // const { user, isAuthenticated, logout, loading } = useAuthStore();
 
   console.log("User is Authenticated: ", isAuthenticated);
   console.log("User: ", user);
-
-  // useEffect(() => {
-  //   if(isAuthenticated) setLoading(false);
-  // }, []);
-
 
 
   const navigation = [
@@ -82,27 +78,7 @@ const Header = () => {
             })}
           </nav>
 
-          {/* Wallet Connection */}
-          {/* <div className="hidden md:flex items-center space-x-4">
-            {isConnected ? (
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center space-x-2 bg-gray-100 px-3 py-1 rounded-lg">
-                  <Wallet className="h-4 w-4 text-green-600" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {formatAddress(address)}
-                  </span>
-                </div>
-                <Button variant="outline" size="sm" onClick={() => disconnectWallet()}>
-                  Disconnect
-                </Button>
-              </div>
-            ) : (
-              <Button onClick={() => connectWallet()} disabled={isConnecting}>
-                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-              </Button>
-            )}
-          </div> */}
-
+        
           {/* Wallet + Auth Actions */}
 <div className="hidden md:flex items-center space-x-4">
   {isConnected ? (
@@ -123,23 +99,21 @@ const Header = () => {
     </Button>
   )}
 
-  {/* 👇 Logout button appears only if authenticated */}
-  {isAuthenticated && (
+   {/* 👇 Auth button toggles between Login and Logout */}
     <Button
-      variant="destructive"
-      size="sm"
-      onClick={async () => {
-        try {
-          await logout();
-        } catch (e) {
-          console.error('Logout failed', e);
-        }
-      }}
-      disabled={loading}
-    >
-      {loading ? 'Logging out...' : 'Logout'}
-    </Button>
-  )}
+  variant={isAuthenticated ? "destructive" : "default"}
+  size="sm"
+  onClick={async () => {
+    if (isAuthenticated) {
+      await logout();
+    } else {
+      router.push("/auth/login");
+    }
+  }}
+>
+  {isAuthenticated ? "Logout" : "Login"}
+</Button>
+
 </div>
 
 
@@ -179,27 +153,6 @@ const Header = () => {
                 );
               })}
             </nav>
-            
-            {/* Mobile Wallet Connection */}
-            {/* <div className="mt-4 pt-4 border-t">
-              {isConnected ? (
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2 bg-gray-100 px-3 py-2 rounded-lg">
-                    <Wallet className="h-4 w-4 text-green-600" />
-                    <span className="text-sm font-medium text-gray-700">
-                      {formatAddress(address)}
-                    </span>
-                  </div>
-                  <Button variant="outline" size="sm" onClick={() => disconnectWallet()} className="w-full">
-                    Disconnect
-                  </Button>
-                </div>
-              ) : (
-                <Button onClick={() => connectWallet()} disabled={isConnecting} className="w-full">
-                  {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-                </Button>
-              )}
-            </div> */}
 
             {/* Mobile Wallet Connection */}
 <div className="mt-4 pt-4 border-t space-y-2">
@@ -231,24 +184,23 @@ const Header = () => {
   )}
 
   {/* 👇 Logout button for mobile */}
-  {isAuthenticated && (
-    <Button
-      variant="destructive"
-      size="sm"
-      className="w-full"
-      onClick={async () => {
-        try {
-          await logout();
-          setIsMenuOpen(false);
-        } catch (e) {
-          console.error('Logout failed', e);
-        }
-      }}
-      disabled={loading}
-    >
-      {loading ? 'Logging out...' : 'Logout'}
-    </Button>
-  )}
+
+  <Button
+  variant={isAuthenticated ? "destructive" : "default"}
+  size="sm"
+  className="w-full"
+  onClick={async () => {
+    if (isAuthenticated) {
+      await logout();
+    } else {
+      window.location.href = "/auth/login";
+    }
+    setIsMenuOpen(false);
+  }}
+>
+  {isAuthenticated ? "Logout" : "Login"}
+</Button>
+  
 </div>
 
           </div>

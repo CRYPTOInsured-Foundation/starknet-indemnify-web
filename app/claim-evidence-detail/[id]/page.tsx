@@ -1,4 +1,4 @@
-import ClaimEvidenceDetailPage from "./ClaimEvidenceDetailPage";
+import ClaimEvidenceDetailPage  from "./ClaimEvidenceDetailPage";
 
 // ✅ Pre-generate static params for each claim evidence
 export async function generateStaticParams() {

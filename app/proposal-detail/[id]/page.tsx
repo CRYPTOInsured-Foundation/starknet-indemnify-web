@@ -1,4 +1,4 @@
-import ProposalDetailPage from "./ProposalDetailPage";
+import ProposalDetailPage  from "./ProposalDetailPage";
 
 // 🔹 For static exports (optional)
 export async function generateStaticParams() {

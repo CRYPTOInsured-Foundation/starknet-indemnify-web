@@ -6,6 +6,7 @@ import { useRootStore } from "@/stores/use-root-store";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -92,6 +93,7 @@ export default function ClaimDetailPage() {
   };
 
   return (
+    <ProtectedRoute>
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
       <header className="bg-white border-b sticky top-0 z-40 backdrop-blur-sm bg-white/95">
@@ -237,5 +239,22 @@ export default function ClaimDetailPage() {
         </Card>
       </div>
     </div>
+    </ProtectedRoute>
   );
 }
+
+
+
+
+// export default function ClaimDetail() {
+//   const { restoreConnection } = useRootStore();
+//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
+
+
+
+//   return (
+//     <ProtectedRoute>
+//       <ClaimDetailPage />
+//     </ProtectedRoute>
+//   );
+// }
