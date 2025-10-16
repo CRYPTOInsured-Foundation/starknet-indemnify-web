@@ -39,7 +39,7 @@ import {
   hash,
   uint256,
 } from "starknet";
-import { PolicyClass, convertPolicyClassToCode, stringToHex } from "@/lib/utils";
+import { PolicyClass, convertPolicyClassToCode, stringToHex, hexToBigInt, StarknetEvent } from "@/lib/utils";
 
 import claimsAbi from "../../contract_abis/claims_contract.json" assert { type: "json" }; 
 
@@ -96,129 +96,133 @@ export default function ClaimsPage() {
     setEditingClaim(null);
   };
 
+
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+  
     if (!form.policyId || !form.claimDescription || !form.claimAmount || !form.policyClass) {
       toast.error("Please fill in all required fields");
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
       const policyClassCode = convertPolicyClassToCode(form.policyClass as PolicyClass);
+  
       const proofArray = form.proofUrls
         ? form.proofUrls.split(",").map((url) => stringToHex(url.trim().slice(0, 31)))
         : [];
-
-      // ✅ On-chain calldata
-      const calldata = new CallData(claimsAbi).compile("file_claim",{
+  
+      if (!address) {
+        throw new Error("Wallet not connected — claimant address is null");
+      }
+  
+      // ✅ Prepare calldata for Starknet contract
+      const calldata = new CallData(claimsAbi).compile("file_claim", {
         policy_id: uint256.bnToUint256(BigInt(form.policyId)),
         claimant: address as string,
         claim_description: stringToHex(form.claimDescription.slice(0, 31)),
         claim_amount: uint256.bnToUint256(BigInt(form.claimAmount)),
-        alternative_account: form.alternativeAccount as string || address as string,
+        alternative_account: form.alternativeAccount as string || (address as string),
         policy_class_code: policyClassCode,
         proof_urls: proofArray,
       });
-
+  
       const contractAddress = process.env.NEXT_PUBLIC_CLAIMS_CONTRACT!;
       const call = {
         contractAddress,
         entrypoint: "file_claim",
         calldata,
       };
-
-      const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
-      await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
-
-      const receipt: GetTransactionReceiptResponse =
-        await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
-
-      const claimSubmittedSelector = hash.getSelectorFromName("ClaimSubmitted");
-      const event = "events" in receipt
-        ? (receipt.events as any[]).find(
-            (e) => e.keys[0].toLowerCase() === claimSubmittedSelector.toLowerCase()
-          )
-        : null;
-
-      if (!event) throw new Error("ClaimSubmitted event not found");
-
-      const onChainClaimId = event.data[0];
-      toast.success("✅ Claim submitted successfully on-chain!");
-
-      // ✅ Off-chain save
-      const payload = {
-        claimId: onChainClaimId,
-        policy: { id: form.policyId },
-        claimant: { id: user?.id },
-        claimDescription: form.claimDescription,
-        claimAmount: form.claimAmount,
-        alternativeAccount: form.alternativeAccount,
-        policyClass: form.policyClass,
-        submissionDate: Date.now(),
-        updatedAt: Date.now(),
-      };
-
-      const resultOffChain = await createClaim(payload);
-      if (resultOffChain.success) {
-        toast.success("✅ Claim recorded off-chain successfully!");
-        fetchClaimsByUser(user?.id as string);
-        resetForm();
-      } else {
-        toast.error("❌ Failed to create claim off-chain");
-      }
+  
+      // 🧩 Wrap on-chain logic in a Promise
+      const onChainCall = (): Promise<[string]> =>
+        new Promise(async (resolve, reject) => {
+          try {
+            // 🔹 Execute transaction on-chain
+            const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+            await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+  
+            // 🔹 Fetch transaction receipt
+            const receipt: GetTransactionReceiptResponse =
+              await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+  
+            if (!("events" in receipt)) return reject(new Error("No events found in transaction receipt"));
+  
+            const claimSubmittedSelector = hash.getSelectorFromName("ClaimSubmitted");
+            const pseudoEvents = receipt.events as StarknetEvent[];
+  
+            // 🔹 Find the ClaimSubmitted event
+            const event = pseudoEvents.find(
+              (e) => e.keys[0].toLowerCase() === claimSubmittedSelector.toLowerCase()
+            );
+  
+            if (!event) return reject(new Error("ClaimSubmitted event not found"));
+  
+            // 🔹 Extract values
+            const claimId = hexToBigInt(event.keys[1]).toString();
+            const policyId = hexToBigInt(event.data[0]).toString();
+            const claimant = event.data[1];
+            const amount = hexToBigInt(event.data[2]).toString();
+            const claimType = hexToBigInt(event.data[3]).toString();
+  
+            console.log("✅ Claim Event Parsed:", {
+              claimId,
+              policyId,
+              claimant,
+              amount,
+              claimType,
+            });
+  
+            toast.success("✅ Claim submitted successfully on-chain!");
+            resolve([claimId]);
+          } catch (error: any) {
+            console.error("❌ On-chain claim filing failed:", error.message);
+            reject(error);
+          }
+        });
+  
+      // ✅ Wait for on-chain confirmation before off-chain processing
+      onChainCall()
+        .then(async ([onChainClaimId]) => {
+          const payload = {
+            claimId: onChainClaimId,
+            policy: form.policyId,
+            claimant: user?.id,
+            claimDescription: form.claimDescription,
+            claimAmount: form.claimAmount,
+            alternativeAccount: form.alternativeAccount,
+            policyClass: form.policyClass,
+            submissionDate: Date.now(),
+            updatedAt: Date.now(),
+          };
+  
+          // 🔹 Off-chain submission only runs if on-chain succeeded
+          const resultOffChain = await createClaim(payload);
+  
+          if (resultOffChain.success) {
+            toast.success("✅ Claim recorded off-chain successfully!");
+            fetchClaimsByUser(user?.id as string);
+            resetForm();
+          } else {
+            toast.error("⚠️ Failed to record claim off-chain");
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error?.message || "❌ On-chain claim submission failed");
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
+  
     } catch (err: any) {
-      toast.error(err?.message || "Failed to submit claim");
-    } finally {
+      toast.error(err?.message || "Unexpected error occurred");
       setIsSubmitting(false);
     }
   };
-
-  // const handleSubmit = async (e: React.FormEvent) => {
-  //   e.preventDefault();
-  
-  //   if (!form.policyId || !form.claimDescription || !form.claimAmount || !form.policyClass) {
-  //     toast.error("Please fill in all required fields");
-  //     return;
-  //   }
-  
-  //   setIsSubmitting(true);
-  
-  //   try {
-  //     // ✅ Simulate an on-chain claimId (normally emitted by ClaimSubmitted event)
-  //     const fakeClaimId = `0x${crypto.randomUUID().replace(/-/g, "").slice(0, 64)}`;
-  
-  //     // ✅ Create payload directly for backend
-  //     const payload = {
-  //       claimId: fakeClaimId,
-  //       policy: { id: form.policyId },
-  //       claimant: { id: user?.id },
-  //       claimDescription: form.claimDescription,
-  //       claimAmount: form.claimAmount,
-  //       alternativeAccount: form.alternativeAccount || user?.walletAddress,
-  //       policyClass: form.policyClass,
-  //       submissionDate: Date.now(),
-  //       updatedAt: Date.now(),
-  //     };
-  
-  //     // ✅ Call your backend directly (off-chain)
-  //     const resultOffChain = await createClaim(payload);
-  
-  //     if (resultOffChain.success) {
-  //       toast.success("✅ Claim created successfully (off-chain mock)!");
-  //       await fetchClaimsByUser(user?.id as string);
-  //       resetForm();
-  //     } else {
-  //       toast.error("❌ Failed to create claim off-chain");
-  //     }
-  //   } catch (err: any) {
-  //     toast.error(err?.message || "Failed to create claim");
-  //   } finally {
-  //     setIsSubmitting(false);
-  //   }
-  // };
-  
+    
 
   const handleUpdate = async () => {
     if (!editingClaim) return;

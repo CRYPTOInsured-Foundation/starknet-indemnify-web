@@ -286,18 +286,3 @@ export default function ProposalDetailPage() {
     </ProtectedRoute>
   );
 }
-
-
-
-// export default function ProposalDetail() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <ProposalDetailPage />
-//     </ProtectedRoute>
-//   );
-// }

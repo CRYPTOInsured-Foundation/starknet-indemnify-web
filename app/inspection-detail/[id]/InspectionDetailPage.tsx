@@ -251,16 +251,3 @@ export default function InspectionDetailPage() {
 }
 
 
-
-// export default function InspectionDetail() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <InspectionDetailPage />
-//     </ProtectedRoute>
-//   );
-// }

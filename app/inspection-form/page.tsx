@@ -228,16 +228,3 @@ export default function InspectionFormPage() {
 }
 
 
-
-// export default function InspectionForm() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <InspectionFormPage />
-//     </ProtectedRoute>
-//   );
-// }

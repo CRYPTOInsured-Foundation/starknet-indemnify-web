@@ -16,7 +16,7 @@ import {
   type InvokeFunctionResponse,
   type GetTransactionReceiptResponse,
 } from "starknet";
-import { PaymentStatus } from "@/lib/utils";
+import { PaymentStatus, StarknetEvent, hexToBigInt } from "@/lib/utils";
 import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
 import treasuryAbi from "../../contract_abis/treasury_contract.json" assert { type: "json" }; 
@@ -75,81 +75,145 @@ export default function PaymentPage() {
 
   console.log("Approved Propsals: ", approvedProposals)
 
+
+
   // ✅ On-chain Premium Payment
   const handlePayPremium = async () => {
     if (!selectedProposalId) {
       toast.error("Please select an approved proposal to pay for.");
       return;
     }
-
+  
     const proposal = proposals.find((p) => p.id === selectedProposalId);
     if (!proposal) {
       toast.error("Proposal not found.");
       return;
     }
-
+  
     setIsSubmitting(true);
+  
     try {
-
-      console.log("prposal id: ", proposal.proposalId)
-
       if (!address) {
-        throw new Error("Wallet not connected — proposer address is null");
+        throw new Error("Wallet not connected — payer address is null");
       }
+  
+      console.log("Proposal ID: ", proposal.proposalId);
+  
+      // ✅ Prepare calldata for Starknet contract
       const calldata = new CallData(treasuryAbi).compile("pay_premium", {
         proposal_id: uint256.bnToUint256(BigInt(parseInt(proposal.proposalId))),
-        payer_address: address
+        payer_address: address,
       });
-
+  
       const contractAddress = process.env.NEXT_PUBLIC_TREASURY_CONTRACT!;
-      console.log("Treasury Contract: ", contractAddress)
-
+      console.log("Treasury Contract: ", contractAddress);
+  
       const call = {
-        contractAddress: contractAddress,
-        entrypoint: 'pay_premium',
-        calldata: calldata
+        contractAddress,
+        entrypoint: "pay_premium",
+        calldata,
       };
-
-      const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
-      await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
-
-      const receipt: GetTransactionReceiptResponse =
-        await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
-
-      const eventSelector = hash.getSelectorFromName("PremiumPaymentRecorded");
-      const event = "events" in receipt
-        ? (receipt.events as any[]).find((e) => e.keys[0].toLowerCase() === eventSelector.toLowerCase())
-        : null;
-
-      if (!event) throw new Error("PremiumPaymentRecorded event not found");
-
-      const onChainTxnId = event.data[0];
-      toast.success("✅ Premium payment successful on-chain!");
-
-      // Save off-chain
-      const payload = {
-        transactionId: onChainTxnId,
-        proposal,
-        policyholder: user,
-        payerAddress: user?.walletAddress,
-        amountPaid: proposal.premiumPayable,
-        sumInsured: proposal.sumInsured,
-        paymentDate: new Date().toISOString(),
-        txnHash: result.transaction_hash,
-        paymentStatus: PaymentStatus.Successful,
-      };
-
-      const resultOffChain = await createPremiumPayment(payload);
-      if (resultOffChain.success) {
-        toast.success("✅ Premium payment recorded off-chain!");
-        fetchPremiumPaymentsByUser(user?.id as string);
-      }
+  
+      // 🧩 On-chain logic as a Promise
+      const onChainCall = (): Promise<[string, string, string, string, string, string, string, string, string]> =>
+        new Promise(async (resolve, reject) => {
+          try {
+            // 🔹 Execute on-chain transaction
+            const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+            await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+  
+            // 🔹 Retrieve transaction receipt
+            const receipt: GetTransactionReceiptResponse =
+              await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+  
+            if (!("events" in receipt)) return reject(new Error("No events found in transaction receipt"));
+  
+            // 🔹 Match event selector
+            const eventSelector = hash.getSelectorFromName("PremiumPaymentRecorded");
+            const pseudoEvents = receipt.events as StarknetEvent[];
+  
+            const event = pseudoEvents.find(
+              (e) => e.keys[0].toLowerCase() === eventSelector.toLowerCase()
+            );
+  
+            if (!event) return reject(new Error("PremiumPaymentRecorded event not found"));
+  
+            // 🔹 Decode event data based on your struct
+            const transactionId = hexToBigInt(event.keys[1]).toString(); // first key after selector
+            const proposalId = hexToBigInt(event.data[0]).toString();
+            const policyId = hexToBigInt(event.data[1]).toString();
+            const payerAddress = event.data[2];
+            const policyholder = event.data[3];
+            const amountPaid = hexToBigInt(event.data[4]).toString();
+            const sumInsured = hexToBigInt(event.data[5]).toString();
+            const paymentDate = hexToBigInt(event.data[6]).toString();
+            const txnHash = event.data[7];
+  
+            console.log("✅ PremiumPaymentRecorded event parsed:", {
+              transactionId,
+              proposalId,
+              policyId,
+              payerAddress,
+              policyholder,
+              amountPaid,
+              sumInsured,
+              paymentDate,
+              txnHash,
+            });
+  
+            toast.success("✅ Premium payment confirmed on-chain!");
+            resolve([
+              transactionId,
+              proposalId,
+              policyId,
+              payerAddress,
+              policyholder,
+              amountPaid,
+              sumInsured,
+              paymentDate,
+              txnHash,
+            ]);
+          } catch (error: any) {
+            console.error("❌ On-chain premium payment failed:", error.message);
+            reject(error);
+          }
+        });
+  
+      // ✅ Run off-chain logic only after on-chain success
+      onChainCall()
+        .then(async ([transactionId, proposalId, policyId, payerAddress, policyholder, amountPaid, sumInsured, paymentDate, txnHash]) => {
+          const payload = {
+            transactionId,
+            proposal,
+            policyholder: user,
+            payerAddress,
+            amountPaid,
+            sumInsured,
+            paymentDate: new Date().toISOString(),
+            txnHash,
+            paymentStatus: PaymentStatus.Successful,
+          };
+  
+          const resultOffChain = await createPremiumPayment(payload);
+          if (resultOffChain.success) {
+            toast.success("✅ Premium payment recorded off-chain!");
+            fetchPremiumPaymentsByUser(user?.id as string);
+          } else {
+            toast.error("⚠️ Failed to record premium payment off-chain");
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error?.message || "❌ On-chain payment failed");
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
     } catch (err: any) {
-      toast.error(err?.message || "Premium payment failed");
-    } finally {
+      toast.error(err?.message || "Unexpected error occurred during payment");
       setIsSubmitting(false);
     }
   };
+  
 
   // ✅ On-chain Token Purchase (Dynamic Quantity)
   const handleBuyToken = async () => {
@@ -157,144 +221,269 @@ export default function PaymentPage() {
       toast.error("Please enter a valid quantity to buy.");
       return;
     }
-
-    setIsSubmitting(true);
+  
     if (!address) {
-      throw new Error("Wallet not connected — proposer address is null");
+      toast.error("Wallet not connected — buyer address missing.");
+      return;
     }
+  
+    setIsSubmitting(true);
+  
     try {
+      // ✅ Prepare calldata for Starknet contract
       const calldata = new CallData(treasuryAbi).compile("purchase_stindem", {
         buyer_address: address,
-        quantity: uint256.bnToUint256(BigInt(buyQuantity))
+        quantity: uint256.bnToUint256(BigInt(buyQuantity)),
       });
-
+  
       const contractAddress = process.env.NEXT_PUBLIC_TREASURY_CONTRACT!;
-      console.log("Treasury Contract: ", contractAddress)
-
+      console.log("Treasury Contract:", contractAddress);
+  
       const call = {
-        contractAddress: process.env.NEXT_PUBLIC_TREASURY_CONTRACT!,
-        entrypoint: 'purchase_stindem',
-        calldata: calldata
+        contractAddress,
+        entrypoint: "purchase_stindem",
+        calldata,
       };
-
-      const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
-      await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
-
-      const selector = hash.getSelectorFromName("StindemPurchased");
-
-      const eventsT = await (provider as ProviderInterface).getEvents({
-        address: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
-        from_block: { block_number: 0 },
-        to_block: "latest",
-        keys: [[selector]],
-        chunk_size: 100, // ✅ required field
-      });
-
-      console.log("Events: ", eventsT);
-
-      const receipt: GetTransactionReceiptResponse =
-        await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
-
-      const eventSelector = hash.getSelectorFromName("StindemPurchased");
-      const event = "events" in receipt
-        ? (receipt.events as any[]).find((e) => e.keys[0].toLowerCase() === eventSelector.toLowerCase())
-        : null;
-
-      if (!event) throw new Error("StindemPurchased event not found");
-
-      const onChainTxnId = event.data[0];
-      toast.success(`✅ Purchased ${buyQuantity} STINDEM tokens on-chain!`);
-
-      const payload = {
-        transactionId: onChainTxnId,
-        buyer: user,
-        tokenAddress: process.env.NEXT_PUBLIC_STINDEM_ADDRESS!,
-        tokenSymbol: "STINDEM",
-        quantity: buyQuantity,
-        unitPrice: "1",
-        totalPricePaid: buyQuantity,
-        paymentDate: new Date().toISOString(),
-        txnHash: result.transaction_hash,
-        paymentStatus: PaymentStatus.Successful,
-      };
-
-      const resultOffChain = await createTokenPurchase(payload);
-      if (resultOffChain.success) toast.success("✅ Token purchase recorded off-chain!");
+  
+      // 🧩 Wrap on-chain logic into a Promise
+      const onChainCall = (): Promise<[string, string, string, string, string, string, string, string, string]> =>
+        new Promise(async (resolve, reject) => {
+          try {
+            // 🔹 Execute transaction on-chain
+            const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+            await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+  
+            // 🔹 Fetch receipt
+            const receipt: GetTransactionReceiptResponse =
+              await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+  
+            if (!("events" in receipt)) return reject(new Error("No events found in transaction receipt"));
+  
+            // 🔹 Parse emitted event
+            const purchaseSelector = hash.getSelectorFromName("StindemPurchased");
+            const pseudoEvents = receipt.events as StarknetEvent[];
+  
+            const event = pseudoEvents.find(
+              (e) => e.keys[0].toLowerCase() === purchaseSelector.toLowerCase()
+            );
+  
+            if (!event) return reject(new Error("StindemPurchased event not found"));
+  
+            // 🔹 Decode event data
+            const transactionId = hexToBigInt(event.keys[1]).toString(); // first key after selector
+            const buyerAddress = event.data[0];
+            const sellerAddress = event.data[1];
+            const tokenAddress = event.data[2];
+            const quantity = hexToBigInt(event.data[3]).toString();
+            const unitPrice = hexToBigInt(event.data[4]).toString();
+            const totalPricePaid = hexToBigInt(event.data[5]).toString();
+            const paymentDate = hexToBigInt(event.data[6]).toString();
+            const txnHash = event.data[7];
+  
+            console.log("✅ StindemPurchased Event Parsed:", {
+              transactionId,
+              buyerAddress,
+              sellerAddress,
+              tokenAddress,
+              quantity,
+              unitPrice,
+              totalPricePaid,
+              paymentDate,
+              txnHash,
+            });
+  
+            toast.success(`✅ Purchased ${buyQuantity} STINDEM tokens on-chain!`);
+            resolve([
+              transactionId,
+              buyerAddress,
+              sellerAddress,
+              tokenAddress,
+              quantity,
+              unitPrice,
+              totalPricePaid,
+              paymentDate,
+              txnHash,
+            ]);
+          } catch (error: any) {
+            console.error("❌ On-chain token purchase failed:", error.message);
+            reject(error);
+          }
+        });
+  
+      // ✅ Run off-chain logic only when on-chain succeeds
+      onChainCall()
+        .then(async ([transactionId, buyerAddress, sellerAddress, tokenAddress, quantity, unitPrice, totalPricePaid, paymentDate, txnHash]) => {
+          const payload = {
+            transactionId,
+            buyer: user,
+            tokenAddress: tokenAddress || process.env.NEXT_PUBLIC_STINDEM_ADDRESS!,
+            tokenSymbol: "STINDEM",
+            quantity,
+            unitPrice,
+            totalPricePaid,
+            paymentDate: new Date().toISOString(),
+            txnHash,
+            paymentStatus: PaymentStatus.Successful,
+          };
+  
+          const resultOffChain = await createTokenPurchase(payload);
+          if (resultOffChain.success) {
+            toast.success("✅ Token purchase recorded off-chain!");
+          } else {
+            toast.error("⚠️ Failed to record token purchase off-chain");
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error?.message || "❌ On-chain token purchase failed");
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
     } catch (err: any) {
-      toast.error(err?.message || "Token purchase failed");
-    } finally {
+      toast.error(err?.message || "Unexpected error occurred during token purchase");
       setIsSubmitting(false);
     }
   };
+  
+
 
   // ✅ On-chain Token Recovery (Dynamic Quantity)
+
+
+
   const handleSellToken = async () => {
     if (!sellQuantity || isNaN(Number(sellQuantity)) || Number(sellQuantity) <= 0) {
       toast.error("Please enter a valid quantity to sell.");
       return;
     }
-
+  
     setIsSubmitting(true);
-
-    if (!address) {
-      throw new Error("Wallet not connected — proposer address is null");
-    }
-
+  
     try {
+      if (!address) {
+        throw new Error("Wallet not connected — proposer address is null");
+      }
+  
+      // ✅ Prepare calldata
       const calldata = new CallData(treasuryAbi).compile("recover_stindem_from_market", {
         seller_address: address,
-        quantity: uint256.bnToUint256(BigInt(sellQuantity))
+        quantity: uint256.bnToUint256(BigInt(sellQuantity)),
       });
-
-
+  
       const contractAddress = process.env.NEXT_PUBLIC_TREASURY_CONTRACT!;
-      console.log("Treasury Contract: ", contractAddress)
-
+      console.log("Treasury Contract:", contractAddress);
+  
       const call = {
-        contractAddress: contractAddress,
-        entrypoint: 'recover_stindem_from_market',
-        calldata: calldata,
+        contractAddress,
+        entrypoint: "recover_stindem_from_market",
+        calldata,
       };
-
-      const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
-      await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
-
-      const receipt: GetTransactionReceiptResponse =
-        await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
-
-      const eventSelector = hash.getSelectorFromName("StindemRecovered");
-      const event = "events" in receipt
-        ? (receipt.events as any[]).find((e) => e.keys[0].toLowerCase() === eventSelector.toLowerCase())
-        : null;
-
-      if (!event) throw new Error("StindemRecovered event not found");
-
-      const onChainTxnId = event.data[0];
-      toast.success(`✅ Sold ${sellQuantity} STINDEM tokens on-chain!`);
-
-      const payload = {
-        transactionId: onChainTxnId,
-        sellerAddress: user?.walletAddress,
-        buyerAddress: "0xRECOVERY",
-        tokenAddress: process.env.NEXT_PUBLIC_NATIVE_TOKEN!,
-        tokenSymbol: "STINDEM",
-        quantity: sellQuantity,
-        unitPrice: "1",
-        totalPricePaid: sellQuantity,
-        paymentDate: new Date().toISOString(),
-        txnHash: result.transaction_hash,
-        paymentStatus: PaymentStatus.Successful,
-      };
-
-      const resultOffChain = await createTokenRecovery(payload);
-      if (resultOffChain.success) toast.success("✅ Token sale recorded off-chain!");
+  
+      // 🧩 On-chain logic as a Promise
+      const onChainCall = (): Promise<[string, string, string, string, string, string, string, string, string, string]> =>
+        new Promise(async (resolve, reject) => {
+          try {
+            // 🔹 Execute transaction
+            const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+            await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+  
+            // 🔹 Fetch receipt
+            const receipt: GetTransactionReceiptResponse =
+              await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+  
+            if (!("events" in receipt)) return reject(new Error("No events found in transaction receipt"));
+  
+            // 🔹 Find StindemRecovered event
+            const eventSelector = hash.getSelectorFromName("StindemRecovered");
+            const pseudoEvents = receipt.events as StarknetEvent[];
+  
+            const event = pseudoEvents.find(
+              (e) => e.keys[0].toLowerCase() === eventSelector.toLowerCase()
+            );
+  
+            if (!event) return reject(new Error("StindemRecovered event not found"));
+  
+            // 🔹 Decode event data (in struct order)
+            const transactionId = hexToBigInt(event.keys[1]).toString();
+            const sellerAddress = event.data[0];
+            const buyerAddress = event.data[1];
+            const stindemTokenAddress = event.data[2];
+            const strkTokenAddress = event.data[3];
+            const stindemQuantity = hexToBigInt(event.data[4]).toString();
+            const strkAmountPaid = hexToBigInt(event.data[5]).toString();
+            const unitPrice = hexToBigInt(event.data[6]).toString();
+            const recoveryDate = hexToBigInt(event.data[7]).toString();
+            const txnHash = event.data[8];
+  
+            console.log("✅ StindemRecovered event parsed:", {
+              transactionId,
+              sellerAddress,
+              buyerAddress,
+              stindemTokenAddress,
+              strkTokenAddress,
+              stindemQuantity,
+              strkAmountPaid,
+              unitPrice,
+              recoveryDate,
+              txnHash,
+            });
+  
+            toast.success(`✅ Sold ${sellQuantity} STINDEM tokens on-chain!`);
+            resolve([
+              transactionId,
+              sellerAddress,
+              buyerAddress,
+              stindemTokenAddress,
+              strkTokenAddress,
+              stindemQuantity,
+              strkAmountPaid,
+              unitPrice,
+              recoveryDate,
+              txnHash,
+            ]);
+          } catch (error: any) {
+            console.error("❌ On-chain token recovery failed:", error.message);
+            reject(error);
+          }
+        });
+  
+      // ✅ Off-chain logic only after on-chain success
+      onChainCall()
+        .then(async ([transactionId, sellerAddress, buyerAddress, stindemTokenAddress, strkTokenAddress, stindemQuantity, strkAmountPaid, unitPrice, recoveryDate, txnHash]) => {
+          const payload = {
+            transactionId,
+            sellerAddress,
+            buyerAddress,
+            tokenAddress: stindemTokenAddress,
+            tokenSymbol: "STINDEM",
+            quantity: stindemQuantity,
+            unitPrice,
+            totalPricePaid: strkAmountPaid,
+            paymentDate: new Date().toISOString(),
+            txnHash,
+            paymentStatus: PaymentStatus.Successful,
+          };
+  
+          const resultOffChain = await createTokenRecovery(payload);
+          if (resultOffChain.success) {
+            toast.success("✅ Token sale recorded off-chain!");
+          } else {
+            toast.error("⚠️ Failed to record token sale off-chain");
+          }
+        })
+        .catch((error: any) => {
+          toast.error(error?.message || "❌ On-chain token sale failed");
+        })
+        .finally(() => {
+          setIsSubmitting(false);
+        });
     } catch (err: any) {
-      toast.error(err?.message || "Token sale failed");
-    } finally {
+      toast.error(err?.message || "Unexpected error occurred during token sale");
       setIsSubmitting(false);
     }
   };
-
+  
+  
   return (
     <ProtectedRoute>
     <div className="p-6 space-y-6">
@@ -402,18 +591,3 @@ export default function PaymentPage() {
     </ProtectedRoute>
   );
 }
-
-
-
-// export default function Payment() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <PaymentPage />
-//     </ProtectedRoute>
-//   );
-// }

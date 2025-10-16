@@ -221,17 +221,3 @@ export default function PolicyDetailPage() {
     </ProtectedRoute>
   );
 }
-
-// // ✅ Default export wrapped in ProtectedRoute
-// export default function PolicyDetail() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => {
-//     restoreConnection();
-//   }, [restoreConnection]);
-
-//   return (
-//     <ProtectedRoute>
-//       <PolicyDetailPage />
-//     </ProtectedRoute>
-//   );
-// }

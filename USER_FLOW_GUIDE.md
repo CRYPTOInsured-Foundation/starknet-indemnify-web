@@ -59,6 +59,7 @@ To activate your insurance policy:
 2. From the dropdown list, select an approved proposal (these are insurance requests that have been accepted)
 3. Click **"Pay Premium"**
 4. Confirm the transaction in your wallet
+5. Note that for this test purpose Proposals are approved automatically on Inspection submission
 
 **The system will:**
 - Process your payment on-chain (on Starknet)
@@ -73,6 +74,7 @@ If you've filed a claim and it's been approved:
 
 1. Open the **"Claim Settlements"** tab
 2. You'll see a list of your claims and settlement amounts
+3. Note that for this test purpose Claims are approved automatically on Claim Evidence submission 
 
 **Each entry shows:**
 - Claim ID

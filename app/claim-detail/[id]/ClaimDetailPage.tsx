@@ -243,18 +243,3 @@ export default function ClaimDetailPage() {
   );
 }
 
-
-
-
-// export default function ClaimDetail() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <ClaimDetailPage />
-//     </ProtectedRoute>
-//   );
-// }
