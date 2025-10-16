@@ -2,6 +2,26 @@
 
 Welcome to Starknet Indemnify — your decentralized insurance and token management platform built on Starknet. This guide will walk you through how to use the app easily, even if you're not familiar with blockchain technology.
 
+
+## 🚨 Important Notice
+
+**Heads up, Pioneer! 🚀**
+
+This application is currently in its **active development phase**. I am building something extraordinary, and like all great innovations, there might be a few bumps along the way.
+
+**What you should know:**
+
+- 🔧 **Work in Progress**: We're squashing bugs and enhancing features daily
+- 🐛 **Expected Quirks**: You might encounter occasional glitches—we're on it!
+- 🌐 **Testnet Environment**: All contracts are currently deployed on **Sepolia Testnet only**
+- 💰 **Use Test STRK**: Remember to use testnet STRK for all transactions
+
+**Need help or want to chat?**
+Reach out directly to me on Telegram: **@IsenewoOluwaseyi**
+
+Your feedback during this phase is invaluable! 🙏
+
+
 ## 🌐 1. Getting Started
 
 **Visit the App:**
