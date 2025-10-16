@@ -186,16 +186,3 @@ export default function ClaimEvidenceDetailPage() {
 }
 
 
-
-// export default function ClaimEvidenceDetail() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <ClaimEvidenceDetailPage />
-//     </ProtectedRoute>
-//   );
-// }

@@ -9,7 +9,10 @@ import {
   convertPolicyClassToCode, 
   convertPremiumFrequencyToCode, 
   StarknetEvent,
-  stringToHex
+  stringToHex,
+  hexToBigInt,
+  hexToNumber,
+  hexToText
  } from "@/lib/utils";
 import {
   Card,
@@ -127,8 +130,6 @@ export default function ProposalPage() {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
 
-  console.log("Form data: ", form)
-
   if (!form.policyClass || !form.sumInsured || !form.premiumFrequency || !calculatedPremium) {
     toast.error("Please fill all required fields");
     return;
@@ -140,147 +141,111 @@ const handleSubmit = async (e: React.FormEvent) => {
     const policyClassCode = convertPolicyClassToCode(form.policyClass as PolicyClass);
     const premiumFrequencyCode = convertPremiumFrequencyToCode(form.premiumFrequency as PremiumFrequency);
 
-  if (!address) {
-    throw new Error("Wallet not connected — proposer address is null");
-  }
+    if (!address) {
+      throw new Error("Wallet not connected — proposer address is null");
+    }
 
-// const subjectBytes = new TextEncoder().encode(form.subjectMatter.slice(0, 31)); // converts to Uint8Array
-const calldata = new CallData(proposalAbi).compile("submit_proposal", {
-  proposer: address,
-  policy_class_code: BigInt(policyClassCode),
-  subject_matter: new TextEncoder().encode(form.subjectMatter.slice(0, 31)),
-  sum_insured: uint256.bnToUint256(BigInt(form.sumInsured)),
-  premium_frequency_code: BigInt(premiumFrequencyCode),
-  frequency_factor: BigInt(form.frequencyFactor)
-});
+    // ✅ Prepare calldata for Starknet contract
+    const calldata = new CallData(proposalAbi).compile("submit_proposal", {
+      proposer: address,
+      policy_class_code: BigInt(policyClassCode),
+      subject_matter: new TextEncoder().encode(form.subjectMatter.slice(0, 31)),
+      sum_insured: uint256.bnToUint256(BigInt(form.sumInsured)),
+      premium_frequency_code: BigInt(premiumFrequencyCode),
+      frequency_factor: BigInt(form.frequencyFactor)
+    });
 
-
-console.log("Compiled calldata:", calldata);
-
-
-
-    let contractAddress = process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!;
-
-    console.log("Proposal Contract Address: ", contractAddress);
-
+    const contractAddress = process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!;
     const call = {
-      contractAddress: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
-      entrypoint: 'submit_proposal',
-      calldata: calldata
+      contractAddress,
+      entrypoint: "submit_proposal",
+      calldata,
     };
 
+    // 🧩 Wrap on-chain logic into a promise
+    const onChainCall = (): Promise<[string, string]> =>
+      new Promise(async (resolve, reject) => {
+        try {
+          // 🔹 Execute transaction on-chain
+          const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+          await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
 
-    let events: any[] = []
+          // 🔹 Fetch receipt and parse event
+          const receipt: GetTransactionReceiptResponse =
+            await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
 
-    try {
-      // 🔹 Execute transaction on-chain
-    const result: InvokeFunctionResponse = await (account as AccountInterface).execute(call);
+          if (!("events" in receipt)) return reject(new Error("No events found in transaction receipt"));
 
-    // 🔹 Wait for confirmation
-   let pseudoReceipt = await (provider as ProviderInterface).waitForTransaction(result.transaction_hash);
+          const proposalCreatedSelector = hash.getSelectorFromName("ProposalCreated");
+          const pseudoEvents = receipt.events as StarknetEvent[];
 
-   const status =
-  (pseudoReceipt as any).execution_status ||
-  (pseudoReceipt as any).status ||
-  (pseudoReceipt as any).finality_status;
+          const event = pseudoEvents.find(
+            (e) => e.keys[0].toLowerCase() === proposalCreatedSelector.toLowerCase()
+          );
 
-const revertReason =
-  (pseudoReceipt as any).revert_reason ||
-  (pseudoReceipt as any).revert_error ||
-  (pseudoReceipt as any).reason;
+          if (!event) return reject(new Error("ProposalCreated event not found"));
 
-console.log("Execution status:", status);
-console.log("Revert reason:", revertReason);
-    // 🔹 Fetch receipt and read ProposalSubmitted event
-    const receipt: GetTransactionReceiptResponse =
-      await (provider as ProviderInterface).getTransactionReceipt(result.transaction_hash);
+          const proposalId = hexToBigInt(event.keys[1]).toString();
+          const proposer = event.data[0];
 
-//       const selector = hash.getSelectorFromName("ProposalCreated");
+          let fetchedEventKeysArray = event.keys;
 
-//       const { events } = await (provider as ProviderInterface).getEvents({
-//         address: process.env.NEXT_PUBLIC_PROPOSAL_CONTRACT!,
-//         from_block: { block_number: 0 },
-//         to_block: "latest",
-//         keys: [[selector]],
-//         chunk_size: 100, // ✅ required field
-//       });
+          let fetchedEventDataArray = event.data;
+
+          console.log("Event Data Array: ", [...fetchedEventDataArray]);
+          console.log("Event Keys Array: ", [...fetchedEventKeysArray]);
 
 
+          console.log("ProposerId from OnChain: ", proposalId);
+          console.log("Proposer from On-Chain: ", proposer);
 
-// for (const ev of events) {
-//   const decoded = new CallData(proposalAbi).decodeEvent("ProposalCreated", ev.data);
-//   const subject = new TextDecoder().decode(decoded.subject_matter);
-//   console.log({
-//     proposer: decoded.proposer,
-//     policy_class_code: decoded.policy_class_code,
-//     subject,
-//     sum_insured: decoded.sum_insured,
-//     premium_frequency_code: decoded.premium_frequency_code,
-//     frequency_factor: decoded.frequency_factor,
-//   });
-// }
+          toast.success("✅ Proposal submitted on-chain!");
+          resolve([proposalId, proposer]);
+        } catch (error: any) {
+          console.error("❌ On-chain transaction failed:", error.message);
+          reject(error);
+        }
+      });
 
+    // ✅ Call the on-chain logic and handle off-chain submission only on success
+    onChainCall()
+      .then(async ([onChainProposalId, proposer]) => {
+        const payload = {
+          proposalId: onChainProposalId,
+          proposer: user,
+          policyClass: form.policyClass,
+          subjectMatter: form.subjectMatter,
+          sumInsured: form.sumInsured,
+          premiumPayable: calculatedPremium.toString(),
+          premiumFrequency: form.premiumFrequency,
+          frequencyFactor: form.frequencyFactor,
+          submissionDate: new Date().toISOString(),
+        };
 
-    if ("events" in receipt) {
-      const pseudoEvents = receipt.events as StarknetEvent[];
+        // 🔹 Only runs if on-chain call succeeded
+        const resultOffChain = await createProposal(payload);
 
-      // 5. Compute selector for CollectionCreated
-      const proposalCreatedSelector = hash.getSelectorFromName("ProposalCreated");   
+        if (resultOffChain.success) {
+          toast.success("✅ Proposal recorded off-chain successfully!");
+          fetchProposalsByUser(user?.id as string);
+          resetForm();
+        } else {
+          toast.error("⚠️ Failed to record proposal off-chain");
+        }
+      })
+      .catch((error: any) => {
+        toast.error(error?.message || "❌ On-chain proposal submission failed");
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
 
-      // 6. Find event
-      const event = pseudoEvents.find(
-        (e) => e.keys[0].toLowerCase() === proposalCreatedSelector.toLowerCase()
-      );
-
-      if (!event) throw new Error("ProposalCreated event not found");
-
-      // 7. Decode event (from ABI we know [creator, collection])
-      const proposalId = event.data[0];
-      const proposer = event.data[1];
-
-      events = [proposalId, proposer];
-    }
-
-
-    } catch (err) {
-      console.log("Error: ", err instanceof Error ? err.message : "Contract call failed");
-    }
-
-    
-    if (!events) throw new Error("ProposalSubmitted event not found on-chain");
-
-    const onChainProposalId = events[0]; // Assuming the contract emits proposalId first
-
-    toast.success("Proposal submitted on-chain successfully!");
-
-    // 🔹 Step 2: Submit proposal off-chain
-    const payload = {
-      proposalId: onChainProposalId,
-      proposer: user,
-      policyClass: form.policyClass,
-      subjectMatter: form.subjectMatter,
-      sumInsured: form.sumInsured,
-      premiumPayable: calculatedPremium.toString(),
-      premiumFrequency: form.premiumFrequency,
-      frequencyFactor: form.frequencyFactor,
-      submissionDate: new Date().toISOString(),
-    };
-
-    const resultOffChain = await createProposal(payload);
-
-    if (resultOffChain.success) {
-      toast.success("Proposal recorded off-chain successfully!");
-      fetchProposalsByUser(user?.id as string);
-      resetForm();
-    } else {
-      toast.error("Failed to submit proposal off-chain");
-    }
   } catch (err: any) {
-    toast.error(err?.message || "Failed to submit proposal");
-  } finally {
+    toast.error(err?.message || "Unexpected error occurred");
     setIsSubmitting(false);
   }
 };
+
 
 
   const resetForm = () => {
@@ -512,17 +477,3 @@ console.log("Revert reason:", revertReason);
   );
 }
 
-
-
-// export default function Proposal() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <ProposalPage />
-//     </ProtectedRoute>
-//   );
-// }

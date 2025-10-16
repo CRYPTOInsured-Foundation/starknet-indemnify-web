@@ -238,16 +238,3 @@ export default function ClaimEvidenceFormPage() {
 }
 
 
-
-// export default function ClaimEvidenceForm() {
-//   const { restoreConnection } = useRootStore();
-//   useEffect(() => { restoreConnection(); }, [restoreConnection]);
-
-
-
-//   return (
-//     <ProtectedRoute>
-//       <ClaimEvidenceFormPage />
-//     </ProtectedRoute>
-//   );
-// }

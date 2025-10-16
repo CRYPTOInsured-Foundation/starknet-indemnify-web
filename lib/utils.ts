@@ -313,4 +313,25 @@ export interface InsuranceProduct {
  export function stringToHex(str: string): string {
     return "0x" + Buffer.from(str, "utf8").toString("hex");
   }
+
+  // For u8, u16, u32, u64, u128 - small integers
+export const hexToNumber = (hexString: string): number => {
+  return parseInt(hexString, 16);
+};
+
+// For u256 - big integers
+export const hexToBigInt = (hexString: string): bigint => {
+  return BigInt(hexString);
+};
+
+// For ContractAddress - stays as hex string
+export const hexToAddress = (hexString: string): string => {
+  return hexString; // Addresses remain as hex
+};
+
+// For ByteArray (text)
+export const hexToText = (hexArray: string[]): string => {
+  const bytes = hexArray.map(hex => parseInt(hex, 16));
+  return new TextDecoder().decode(new Uint8Array(bytes));
+};
   
