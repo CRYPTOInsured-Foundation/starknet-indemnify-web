@@ -1,6 +1,11 @@
+"use client"
+
+import { useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shield, Target, Users, Award, ArrowRight } from 'lucide-react';
+import { useWalletStore } from '@/stores/use-wallet-store';
+import { useRootStore } from '@/stores/use-root-store';
 
 export default function About() {
   const values = [
@@ -46,6 +51,13 @@ export default function About() {
       image: 'https://images.pexels.com/photos/3785077/pexels-photo-3785077.jpeg?auto=compress&cs=tinysrgb&w=400&h=400&crop=face',
     },
   ];
+
+
+  const restoreConnection = useRootStore((s) => s.restoreConnection);
+
+  useEffect(() => {
+    restoreConnection();
+  }, [restoreConnection]);
 
   return (
     <div className="w-full">

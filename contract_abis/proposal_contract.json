@@ -1,0 +1,1132 @@
+[
+  {
+    "type": "impl",
+    "name": "ProposalFormImpl",
+    "interface_name": "starknet_indemnify::interfaces::interfaces::IProposalForm"
+  },
+  {
+    "type": "struct",
+    "name": "core::byte_array::ByteArray",
+    "members": [
+      {
+        "name": "data",
+        "type": "core::array::Array::<core::bytes_31::bytes31>"
+      },
+      {
+        "name": "pending_word",
+        "type": "core::felt252"
+      },
+      {
+        "name": "pending_word_len",
+        "type": "core::integer::u32"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "core::integer::u256",
+    "members": [
+      {
+        "name": "low",
+        "type": "core::integer::u128"
+      },
+      {
+        "name": "high",
+        "type": "core::integer::u128"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "core::bool",
+    "variants": [
+      {
+        "name": "False",
+        "type": "()"
+      },
+      {
+        "name": "True",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "starknet_indemnify::enums::enums::PolicyClass",
+    "variants": [
+      {
+        "name": "TravelInsurance",
+        "type": "()"
+      },
+      {
+        "name": "BlockchainExploitInsurance",
+        "type": "()"
+      },
+      {
+        "name": "FireInsurance",
+        "type": "()"
+      },
+      {
+        "name": "MotorInsurance",
+        "type": "()"
+      },
+      {
+        "name": "PersonalAccidentInsurance",
+        "type": "()"
+      },
+      {
+        "name": "HealthInsurance",
+        "type": "()"
+      },
+      {
+        "name": "InvalidClassOfInsurance",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "starknet_indemnify::enums::enums::PremiumFrequency",
+    "variants": [
+      {
+        "name": "Monthly",
+        "type": "()"
+      },
+      {
+        "name": "Quarterly",
+        "type": "()"
+      },
+      {
+        "name": "HalfYearly",
+        "type": "()"
+      },
+      {
+        "name": "Annually",
+        "type": "()"
+      },
+      {
+        "name": "InvalidFrequency",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "starknet_indemnify::enums::enums::ProposalStatus",
+    "variants": [
+      {
+        "name": "Draft",
+        "type": "()"
+      },
+      {
+        "name": "Submitted",
+        "type": "()"
+      },
+      {
+        "name": "UnderReview",
+        "type": "()"
+      },
+      {
+        "name": "Approved",
+        "type": "()"
+      },
+      {
+        "name": "Rejected",
+        "type": "()"
+      },
+      {
+        "name": "Expired",
+        "type": "()"
+      },
+      {
+        "name": "InvalidStatus",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "enum",
+    "name": "starknet_indemnify::enums::enums::RejectionReason",
+    "variants": [
+      {
+        "name": "IncompleteProposal",
+        "type": "()"
+      },
+      {
+        "name": "Misrepresentation",
+        "type": "()"
+      },
+      {
+        "name": "NonDisclosure",
+        "type": "()"
+      },
+      {
+        "name": "RiskTooHigh",
+        "type": "()"
+      },
+      {
+        "name": "LacksInsurableInterest",
+        "type": "()"
+      },
+      {
+        "name": "PoorMoralHazard",
+        "type": "()"
+      },
+      {
+        "name": "PoorPhysicalHazard",
+        "type": "()"
+      },
+      {
+        "name": "UndisclosedReason",
+        "type": "()"
+      },
+      {
+        "name": "NotRejected",
+        "type": "()"
+      },
+      {
+        "name": "LacksKYC",
+        "type": "()"
+      },
+      {
+        "name": "InvalidReason",
+        "type": "()"
+      }
+    ]
+  },
+  {
+    "type": "struct",
+    "name": "starknet_indemnify::structs::structs::ProposalFormResponse",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "proposer",
+        "type": "core::starknet::contract_address::ContractAddress"
+      },
+      {
+        "name": "policy_class",
+        "type": "starknet_indemnify::enums::enums::PolicyClass"
+      },
+      {
+        "name": "subject_matter",
+        "type": "core::byte_array::ByteArray"
+      },
+      {
+        "name": "sum_insured",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "premium_payable",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "premium_frequency",
+        "type": "starknet_indemnify::enums::enums::PremiumFrequency"
+      },
+      {
+        "name": "frequency_factor",
+        "type": "core::integer::u8"
+      },
+      {
+        "name": "has_kyc",
+        "type": "core::bool"
+      },
+      {
+        "name": "submission_date",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "last_updated",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "expiration_date",
+        "type": "core::integer::u64"
+      },
+      {
+        "name": "is_active",
+        "type": "core::bool"
+      },
+      {
+        "name": "is_expired",
+        "type": "core::bool"
+      },
+      {
+        "name": "is_premium_paid",
+        "type": "core::bool"
+      },
+      {
+        "name": "risk_analytics_approved",
+        "type": "core::bool"
+      },
+      {
+        "name": "governance_approved",
+        "type": "core::bool"
+      },
+      {
+        "name": "proposal_status",
+        "type": "starknet_indemnify::enums::enums::ProposalStatus"
+      },
+      {
+        "name": "rejection_reason",
+        "type": "starknet_indemnify::enums::enums::RejectionReason"
+      },
+      {
+        "name": "risk_score",
+        "type": "core::integer::u256"
+      },
+      {
+        "name": "premium_rate",
+        "type": "core::integer::u16"
+      },
+      {
+        "name": "has_reinsurance",
+        "type": "core::bool"
+      },
+      {
+        "name": "reinsurance_txn_id",
+        "type": "core::integer::u256"
+      }
+    ]
+  },
+  {
+    "type": "interface",
+    "name": "starknet_indemnify::interfaces::interfaces::IProposalForm",
+    "items": [
+      {
+        "type": "function",
+        "name": "submit_proposal",
+        "inputs": [
+          {
+            "name": "proposer",
+            "type": "core::starknet::contract_address::ContractAddress"
+          },
+          {
+            "name": "policy_class_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "subject_matter",
+            "type": "core::byte_array::ByteArray"
+          },
+          {
+            "name": "sum_insured",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "premium_frequency_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "frequency_factor",
+            "type": "core::integer::u8"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "update_proposal",
+        "inputs": [
+          {
+            "name": "proposal_id",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "subject_matter",
+            "type": "core::byte_array::ByteArray"
+          },
+          {
+            "name": "sum_insured",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "premium_frequency_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "frequency_factor",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "has_reinsurance",
+            "type": "core::bool"
+          },
+          {
+            "name": "reinsurance_txn_id",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_proposal_by_id",
+        "inputs": [
+          {
+            "name": "proposal_id",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "starknet_indemnify::structs::structs::ProposalFormResponse"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_min_premium_rate",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u16"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "set_min_premium_rate",
+        "inputs": [
+          {
+            "name": "new_rate",
+            "type": "core::integer::u16"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_max_premium_rate",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u16"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "set_max_premium_rate",
+        "inputs": [
+          {
+            "name": "new_rate",
+            "type": "core::integer::u16"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_min_coverage_amount",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "set_min_coverage_amount",
+        "inputs": [
+          {
+            "name": "new_amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "get_max_coverage_amount",
+        "inputs": [],
+        "outputs": [
+          {
+            "type": "core::integer::u256"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "set_max_coverage_amount",
+        "inputs": [
+          {
+            "name": "new_amount",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "assess_proposal_by_risk_service",
+        "inputs": [
+          {
+            "name": "proposal_id",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "has_kyc",
+            "type": "core::bool"
+          },
+          {
+            "name": "risk_analytics_approved",
+            "type": "core::bool"
+          },
+          {
+            "name": "premium_payable",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "premium_rate",
+            "type": "core::integer::u16"
+          },
+          {
+            "name": "risk_score",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "proposal_status_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "rejection_reason_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "has_reinsurance",
+            "type": "core::bool"
+          },
+          {
+            "name": "reinsurance_txn_id",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "assess_proposal_by_governance",
+        "inputs": [
+          {
+            "name": "proposal_id",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "has_kyc",
+            "type": "core::bool"
+          },
+          {
+            "name": "governance_approved",
+            "type": "core::bool"
+          },
+          {
+            "name": "premium_payable",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "premium_rate",
+            "type": "core::integer::u16"
+          },
+          {
+            "name": "risk_score",
+            "type": "core::integer::u256"
+          },
+          {
+            "name": "proposal_status_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "rejection_reason_code",
+            "type": "core::integer::u8"
+          },
+          {
+            "name": "has_reinsurance",
+            "type": "core::bool"
+          },
+          {
+            "name": "reinsurance_txn_id",
+            "type": "core::integer::u256"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_treasury_address",
+        "inputs": [
+          {
+            "name": "treasury_address",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_policy_minting_address",
+        "inputs": [
+          {
+            "name": "policy_minting_address",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "set_claims_contract_address",
+        "inputs": [
+          {
+            "name": "claims_contract_address",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "type": "impl",
+    "name": "UpgradeableImpl",
+    "interface_name": "openzeppelin_upgrades::interface::IUpgradeable"
+  },
+  {
+    "type": "interface",
+    "name": "openzeppelin_upgrades::interface::IUpgradeable",
+    "items": [
+      {
+        "type": "function",
+        "name": "upgrade",
+        "inputs": [
+          {
+            "name": "new_class_hash",
+            "type": "core::starknet::class_hash::ClassHash"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "type": "impl",
+    "name": "AccessControlImpl",
+    "interface_name": "openzeppelin_access::accesscontrol::interface::IAccessControl"
+  },
+  {
+    "type": "interface",
+    "name": "openzeppelin_access::accesscontrol::interface::IAccessControl",
+    "items": [
+      {
+        "type": "function",
+        "name": "has_role",
+        "inputs": [
+          {
+            "name": "role",
+            "type": "core::felt252"
+          },
+          {
+            "name": "account",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::bool"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "get_role_admin",
+        "inputs": [
+          {
+            "name": "role",
+            "type": "core::felt252"
+          }
+        ],
+        "outputs": [
+          {
+            "type": "core::felt252"
+          }
+        ],
+        "state_mutability": "view"
+      },
+      {
+        "type": "function",
+        "name": "grant_role",
+        "inputs": [
+          {
+            "name": "role",
+            "type": "core::felt252"
+          },
+          {
+            "name": "account",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "revoke_role",
+        "inputs": [
+          {
+            "name": "role",
+            "type": "core::felt252"
+          },
+          {
+            "name": "account",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      },
+      {
+        "type": "function",
+        "name": "renounce_role",
+        "inputs": [
+          {
+            "name": "role",
+            "type": "core::felt252"
+          },
+          {
+            "name": "account",
+            "type": "core::starknet::contract_address::ContractAddress"
+          }
+        ],
+        "outputs": [],
+        "state_mutability": "external"
+      }
+    ]
+  },
+  {
+    "type": "constructor",
+    "name": "constructor",
+    "inputs": [
+      {
+        "name": "admin",
+        "type": "core::starknet::contract_address::ContractAddress"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "role",
+        "type": "core::felt252",
+        "kind": "data"
+      },
+      {
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "sender",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "role",
+        "type": "core::felt252",
+        "kind": "data"
+      },
+      {
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "sender",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "delay",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "role",
+        "type": "core::felt252",
+        "kind": "data"
+      },
+      {
+        "name": "account",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "sender",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "role",
+        "type": "core::felt252",
+        "kind": "data"
+      },
+      {
+        "name": "previous_admin_role",
+        "type": "core::felt252",
+        "kind": "data"
+      },
+      {
+        "name": "new_admin_role",
+        "type": "core::felt252",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "RoleGranted",
+        "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGranted",
+        "kind": "nested"
+      },
+      {
+        "name": "RoleGrantedWithDelay",
+        "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleGrantedWithDelay",
+        "kind": "nested"
+      },
+      {
+        "name": "RoleRevoked",
+        "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleRevoked",
+        "kind": "nested"
+      },
+      {
+        "name": "RoleAdminChanged",
+        "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::RoleAdminChanged",
+        "kind": "nested"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_introspection::src5::SRC5Component::Event",
+    "kind": "enum",
+    "variants": []
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "class_hash",
+        "type": "core::starknet::class_hash::ClassHash",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "Upgraded",
+        "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Upgraded",
+        "kind": "nested"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "openzeppelin_security::reentrancyguard::ReentrancyGuardComponent::Event",
+    "kind": "enum",
+    "variants": []
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::event_structs::event_structs::ProposalCreated",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "proposer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "policy_class",
+        "type": "starknet_indemnify::enums::enums::PolicyClass",
+        "kind": "data"
+      },
+      {
+        "name": "sum_insured",
+        "type": "core::integer::u256",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::event_structs::event_structs::ProposalUpdated",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "proposer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "policy_class",
+        "type": "starknet_indemnify::enums::enums::PolicyClass",
+        "kind": "data"
+      },
+      {
+        "name": "sum_insured",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "last_updated",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::event_structs::event_structs::ProposalRejected",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "proposer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "rejector",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "reason",
+        "type": "starknet_indemnify::enums::enums::RejectionReason",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::event_structs::event_structs::ProposalApproved",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "proposer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "approver",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "premium_payable",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "premium_rate",
+        "type": "core::integer::u16",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::event_structs::event_structs::PremiumPaymentSuccess",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "policyholder",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "payer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "amount",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "policy_token_id",
+        "type": "core::integer::u256",
+        "kind": "data"
+      },
+      {
+        "name": "policy_id",
+        "type": "core::integer::u256",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::event_structs::event_structs::ProposalExpired",
+    "kind": "struct",
+    "members": [
+      {
+        "name": "proposal_id",
+        "type": "core::integer::u256",
+        "kind": "key"
+      },
+      {
+        "name": "proposer",
+        "type": "core::starknet::contract_address::ContractAddress",
+        "kind": "data"
+      },
+      {
+        "name": "policy_class",
+        "type": "starknet_indemnify::enums::enums::PolicyClass",
+        "kind": "data"
+      },
+      {
+        "name": "expired_at",
+        "type": "core::integer::u64",
+        "kind": "data"
+      }
+    ]
+  },
+  {
+    "type": "event",
+    "name": "starknet_indemnify::contracts::insurance_proposal_contract::ProposalFormContract::Event",
+    "kind": "enum",
+    "variants": [
+      {
+        "name": "AccessControlEvent",
+        "type": "openzeppelin_access::accesscontrol::accesscontrol::AccessControlComponent::Event",
+        "kind": "flat"
+      },
+      {
+        "name": "SRC5Event",
+        "type": "openzeppelin_introspection::src5::SRC5Component::Event",
+        "kind": "flat"
+      },
+      {
+        "name": "UpgradeableEvent",
+        "type": "openzeppelin_upgrades::upgradeable::UpgradeableComponent::Event",
+        "kind": "flat"
+      },
+      {
+        "name": "ReentrancyGuardEvent",
+        "type": "openzeppelin_security::reentrancyguard::ReentrancyGuardComponent::Event",
+        "kind": "flat"
+      },
+      {
+        "name": "ProposalCreated",
+        "type": "starknet_indemnify::event_structs::event_structs::ProposalCreated",
+        "kind": "nested"
+      },
+      {
+        "name": "ProposalUPdated",
+        "type": "starknet_indemnify::event_structs::event_structs::ProposalUpdated",
+        "kind": "nested"
+      },
+      {
+        "name": "ProposalRejected",
+        "type": "starknet_indemnify::event_structs::event_structs::ProposalRejected",
+        "kind": "nested"
+      },
+      {
+        "name": "ProposalApproved",
+        "type": "starknet_indemnify::event_structs::event_structs::ProposalApproved",
+        "kind": "nested"
+      },
+      {
+        "name": "PremiumPaymentSuccess",
+        "type": "starknet_indemnify::event_structs::event_structs::PremiumPaymentSuccess",
+        "kind": "nested"
+      },
+      {
+        "name": "ProposalExpired",
+        "type": "starknet_indemnify::event_structs::event_structs::ProposalExpired",
+        "kind": "nested"
+      }
+    ]
+  }
+]

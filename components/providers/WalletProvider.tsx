@@ -1,21 +1,21 @@
-'use client';
+// 'use client';
 
-import { useEffect } from 'react';
-import { useWalletStore } from '@/stores/wallet';
-import { setAuthenticated } from '@/lib/auth';
+// import { useEffect } from 'react';
+// import { useWalletStore } from '@/stores/wallet';
+// import { setAuthenticated } from '@/lib/auth';
 
-interface WalletProviderProps {
-  children: React.ReactNode;
-}
+// interface WalletProviderProps {
+//   children: React.ReactNode;
+// }
 
-const WalletProvider = ({ children }: WalletProviderProps) => {
-  const { isConnected } = useWalletStore();
+// const WalletProvider = ({ children }: WalletProviderProps) => {
+//   const { isConnected } = useWalletStore();
 
-  useEffect(() => {
-    setAuthenticated(isConnected);
-  }, [isConnected]);
+//   useEffect(() => {
+//     setAuthenticated(isConnected);
+//   }, [isConnected]);
 
-  return <>{children}</>;
-};
+//   return <>{children}</>;
+// };
 
-export default WalletProvider;
+// export default WalletProvider;

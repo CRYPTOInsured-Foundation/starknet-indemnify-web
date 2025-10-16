@@ -1,197 +1,187 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import ProtectedRoute from '@/components/guards/ProtectedRoute';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
-import PolicyCard from '@/components/ui/policy-card';
-import { usePoliciesStore } from '@/stores/policies';
-import { Search, Filter, Plus, Download } from 'lucide-react';
+import { useEffect, useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useRootStore } from "@/stores/use-root-store";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Loader2, Shield, CheckCircle, AlertTriangle } from "lucide-react";
+import ProtectedRoute from "@/components/guards/ProtectedRoute";
 
-function PoliciesContent() {
-  const { policies, loading, fetchPolicies } = usePoliciesStore();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'expired' | 'pending'>('all');
+function PoliciesPage() {
+  const router = useRouter();
+  const {
+    policies,
+    isLoadingPolicy,
+    policyError,
+    fetchPoliciesByUser,
+    user
+  } = useRootStore();
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 6;
+  const totalPages = Math.ceil(policies.length / pageSize);
+
+  const userId = user?.id;
+  // Fetch user policies on mount
   useEffect(() => {
-    fetchPolicies();
-  }, [fetchPolicies]);
+    if (userId) fetchPoliciesByUser(userId);
+  }, [userId, fetchPoliciesByUser]);
 
-  const handleManagePolicy = (policyId: string) => {
-    console.log('Managing policy:', policyId);
-  };
-
-  const filteredPolicies = policies.filter(policy => {
-    const matchesSearch = policy.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'all' || policy.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
-
-  const policyStats = {
-    total: policies.length,
-    active: policies.filter(p => p.status === 'active').length,
-    expired: policies.filter(p => p.status === 'expired').length,
-    pending: policies.filter(p => p.status === 'pending').length,
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading your policies...</p>
-        </div>
-      </div>
-    );
-  }
+  // Paginate policies
+  const paginatedPolicies = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return policies.slice(start, start + pageSize);
+  }, [policies, currentPage]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">Insurance Policies</h1>
-              <p className="text-gray-600 mt-1">
-                Manage all your insurance policies in one place.
-              </p>
-            </div>
-            <div className="mt-4 sm:mt-0 flex space-x-3">
-              <Button variant="outline">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4 mr-2" />
-                New Policy
-              </Button>
-            </div>
-          </div>
+    <div className="w-full min-h-screen bg-gradient-to-b from-slate-50 to-white py-16">
+      <div className="max-w-7xl mx-auto px-4">
+        {/* Page Header */}
+        <div className="text-center mb-12">
+          <Badge variant="secondary" className="bg-blue-100 text-blue-700 px-4 py-1.5 text-sm font-semibold mb-4">
+            My Active Policies
+          </Badge>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            Your Blockchain-Backed Insurance
+          </h1>
+          <p className="text-gray-600 max-w-2xl mx-auto">
+            Manage your on-chain insurance policies, monitor coverage, and view claim history.
+          </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-gray-900">{policyStats.total}</div>
-              <div className="text-sm text-gray-600">Total Policies</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-green-600">{policyStats.active}</div>
-              <div className="text-sm text-gray-600">Active</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-yellow-600">{policyStats.pending}</div>
-              <div className="text-sm text-gray-600">Pending</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="p-4">
-              <div className="text-2xl font-bold text-red-600">{policyStats.expired}</div>
-              <div className="text-sm text-gray-600">Expired</div>
-            </CardContent>
-          </Card>
-        </div>
+        <Card className="shadow-lg border border-gray-200">
+          <CardHeader>
+            <CardTitle className="text-xl font-semibold flex items-center gap-2">
+              <Shield className="h-5 w-5 text-blue-600" />
+              My Policies
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {/* Loading State */}
+            {isLoadingPolicy && (
+              <div className="flex justify-center items-center py-10 text-gray-500">
+                <Loader2 className="h-6 w-6 mr-2 animate-spin" />
+                Loading your policies...
+              </div>
+            )}
 
-        {/* Filters */}
-        <Card className="mb-8">
-          <CardContent className="p-6">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search policies..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant={filterStatus === 'all' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('all')}
-                >
-                  All
-                </Button>
-                <Button
-                  variant={filterStatus === 'active' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('active')}
-                >
-                  Active
-                </Button>
-                <Button
-                  variant={filterStatus === 'pending' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('pending')}
-                >
-                  Pending
-                </Button>
-                <Button
-                  variant={filterStatus === 'expired' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilterStatus('expired')}
-                >
-                  Expired
+            {/* Error State */}
+            {!isLoadingPolicy && policyError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center max-w-md mx-auto">
+                <AlertTriangle className="h-10 w-10 text-red-600 mx-auto mb-3" />
+                <p className="text-red-700 mb-3">{policyError}</p>
+                <Button variant="outline" onClick={() => fetchPoliciesByUser(userId!)}>
+                  Retry
                 </Button>
               </div>
-            </div>
+            )}
+
+            {/* Empty State */}
+            {!isLoadingPolicy && !policyError && policies.length === 0 && (
+              <div className="text-center py-16 text-gray-500">
+                <Shield className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                <p>No active policies found.</p>
+              </div>
+            )}
+
+            {/* Policies Table */}
+            {!isLoadingPolicy && !policyError && policies.length > 0 && (
+              <>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Policy ID</TableHead>
+                      <TableHead>Class</TableHead>
+                      <TableHead>Sum Insured</TableHead>
+                      <TableHead>Premium</TableHead>
+                      <TableHead>Frequency</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedPolicies.map((policy) => (
+                      <TableRow key={policy.id} className="hover:bg-blue-50/50 transition">
+                        <TableCell className="font-mono text-sm text-gray-700">
+                          {policy.policyId.slice(0, 8)}…
+                        </TableCell>
+                        <TableCell>{policy.policyClass}</TableCell>
+                        <TableCell>${Number(policy.sumInsured).toLocaleString()}</TableCell>
+                        <TableCell>${Number(policy.premium).toLocaleString()}</TableCell>
+                        <TableCell>{policy.premiumFrequency}</TableCell>
+                        <TableCell>
+                          {policy.isActive ? (
+                            <Badge className="bg-green-100 text-green-700 border-green-200 flex items-center gap-1">
+                              <CheckCircle size={14} />
+                              Active
+                            </Badge>
+                          ) : policy.isExpired ? (
+                            <Badge className="bg-gray-200 text-gray-700 border-gray-300">Expired</Badge>
+                          ) : (
+                            <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200">Inactive</Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => router.push(`/policy-detail/${policy.id}`)}
+                          >
+                            View Details
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+
+                {/* Pagination Controls */}
+                {totalPages > 1 && (
+                  <div className="flex justify-center items-center mt-6 gap-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                    >
+                      Prev
+                    </Button>
+                    <span className="text-sm text-gray-600">
+                      Page {currentPage} of {totalPages}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </CardContent>
         </Card>
-
-        {/* Policies Grid */}
-        {filteredPolicies.length === 0 ? (
-          <Card>
-            <CardContent className="p-12 text-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Filter className="h-8 w-8 text-gray-400" />
-              </div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                {searchTerm || filterStatus !== 'all' ? 'No policies found' : 'No policies yet'}
-              </h3>
-              <p className="text-gray-600 mb-6">
-                {searchTerm || filterStatus !== 'all' 
-                  ? 'Try adjusting your search or filter criteria.'
-                  : 'Start protecting your DeFi assets by purchasing your first insurance policy.'
-                }
-              </p>
-              {!searchTerm && filterStatus === 'all' && (
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Browse Coverage Options
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPolicies.map((policy) => (
-              <PolicyCard
-                key={policy.id}
-                {...policy}
-                onManage={handleManagePolicy}
-              />
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
+
+// ✅ Default export wrapped in ProtectedRoute
 export default function Policies() {
-  return (
-    <ProtectedRoute>
-      <PoliciesContent />
-    </ProtectedRoute>
-  );
-}
+    const { restoreConnection } = useRootStore();
+    useEffect(() => {
+      restoreConnection();
+    }, [restoreConnection]);
+  
+    return (
+      <ProtectedRoute>
+        <PoliciesPage />
+      </ProtectedRoute>
+    );
+  }
