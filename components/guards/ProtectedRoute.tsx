@@ -13,18 +13,26 @@ interface ProtectedRouteProps {
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const router = useRouter();
-  const { user, address, connectWallet, isConnecting, restoreConnection } = useRootStore();
+  const { user, address, connectWallet, loginWithOAuth, isConnecting, restoreConnection } = useRootStore();
 
   // 🔁 Restore session/wallet on mount
   useEffect(() => {
     restoreConnection();
   }, [restoreConnection]);
 
+  useEffect(() => {
+    loginWithOAuth();
+  },[])
+
   // 🚫 Redirect home if user is not authenticated
   useEffect(() => {
     if (!user) {
-      router.replace('/');
+      setTimeout(() => {
+        router.replace('/');
+      }, 3000);
     }
+
+    () => {}
   }, [user, router]);
 
   // 🕒 While checking authentication (initial state)
@@ -61,28 +69,28 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   // 🧩 If authenticated but wallet not connected
-  if (!address) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="w-full max-w-md shadow-md">
-          <CardContent className="p-8 text-center">
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-6">
-              <Wallet className="h-8 w-8 text-purple-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Connect Your Wallet
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Please connect your StarkNet wallet to continue.
-            </p>
-            <Button onClick={() => connectWallet()} disabled={isConnecting} className="w-full">
-              {isConnecting ? 'Connecting...' : 'Connect Wallet'}
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  // if (!address) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center bg-gray-50">
+  //       <Card className="w-full max-w-md shadow-md">
+  //         <CardContent className="p-8 text-center">
+  //           <div className="inline-flex items-center justify-center w-16 h-16 bg-purple-100 rounded-full mb-6">
+  //             <Wallet className="h-8 w-8 text-purple-600" />
+  //           </div>
+  //           <h2 className="text-2xl font-bold text-gray-900 mb-2">
+  //             Connect Your Wallet
+  //           </h2>
+  //           <p className="text-gray-600 mb-6">
+  //             Please connect your StarkNet wallet to continue.
+  //           </p>
+  //           <Button onClick={() => connectWallet()} disabled={isConnecting} className="w-full">
+  //             {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+  //           </Button>
+  //         </CardContent>
+  //       </Card>
+  //     </div>
+  //   );
+  // }
 
   // ✅ Authenticated + Wallet connected → show protected content
   return <>{children}</>;

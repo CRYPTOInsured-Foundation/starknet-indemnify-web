@@ -109,6 +109,20 @@ function DashboardContent() {
     ];
   }, [policies, premiumPayments, claims]);
 
+  const handleManageStatCard = (title: string) => {
+
+    switch(title) {
+      case 'Active Policies': router.push("/policies");
+                              break;
+      case 'Total Premium Paid': router.push("/payments");
+                              break;
+      case 'Pending Claims': router.push("/claims");
+                              break;
+      default: null;
+    }
+
+  }
+
   /** Format policies for PolicyCard */
   const formattedPolicies = useMemo(
     () =>
@@ -170,7 +184,7 @@ function DashboardContent() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, i) => (
             <Card key={i} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-6">
+              <CardContent onClick={() => handleManageStatCard(stat.title)} className="p-6 cursor-pointer">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-gray-600">{stat.title}</p>

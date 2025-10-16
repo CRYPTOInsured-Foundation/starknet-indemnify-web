@@ -41,10 +41,8 @@ export default function InspectionDetailPage() {
       fetchInspectionById(inspectionId);
     }
 
-    return () => {
-      clearSelectedInspection();
-    };
-  }, [inspectionId, fetchInspectionById, clearSelectedInspection]);
+    return () => {};
+  }, [inspectionId, fetchInspectionById]);
 
   // Loading state
   if (isLoadingInspection) {
