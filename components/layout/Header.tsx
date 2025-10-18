@@ -135,7 +135,7 @@ const Header = () => {
           <div className="md:hidden border-t pt-4 pb-4">
             <nav className="flex flex-col space-y-4">
               {navigation.map((item) => {
-                if (item.protected && !isConnected) return null;
+                if (item.protected && !isAuthenticated) return null;
                 return (
                   <Link
                     key={item.name}
